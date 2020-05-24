@@ -7,6 +7,8 @@ class LottoTicket:
     21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 
     43, 44, 45, 46, 47, 48, 49, 50]
 
+    firstLine = []
+
     #Random Number Generator for Lotto tickets
     def randomGenerator(self):
         returnList = []
@@ -16,20 +18,41 @@ class LottoTicket:
                  returnList.append(random.choice(self.numberPool))
         return returnList
 
-    #Ticket Printer
-    def printTicket(self):
-        print(self.date)
-        print()
+    #Ticket Lines Printer
+    def printTicketLines(self):
         print(self.firstLine)
+        print("-------------------------")
         print(self.secondLine)
         print(self.thirdLine)
 
     #Constructor
-    def __init__(self, firstLine, isQuickPick):
+    def __init__(self):
         self.date = date.today()
-        if isQuickPick:
-            self.firstLine = self.randomGenerator()
-        else:
-            self.firstLine = firstLine
         self.secondLine = self.randomGenerator()
         self.thirdLine = self.randomGenerator()
+
+class QuickPick(LottoTicket):
+
+    #Constructor
+    def __init__(self):
+        LottoTicket.__init__(self)
+        self.firstLine = self.randomGenerator()
+
+    #Ticket Printer
+    def printTicket(self):
+        print(self.date)
+        print("--- Quick Pick Ticket ---")
+        self.printTicketLines()
+
+class PickYourOwn(LottoTicket):
+
+    #Constructor
+    def __init__(self, firstLine):
+        LottoTicket.__init__(self)
+        self.firstLine = firstLine
+
+    #Ticket Printer
+    def printTicket(self):
+        print(self.date)
+        print("--- Pick Your Own Ticket ---")
+        self.printTicketLines()

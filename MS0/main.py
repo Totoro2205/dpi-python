@@ -37,7 +37,7 @@
 #!/usr/bin/python3
 
 import argparse
-from ticket import LottoTicket
+from ticket import LottoTicket, QuickPick, PickYourOwn
 
 switchParser = argparse.ArgumentParser(description="This script will generate you a lotto ticket!")
 switchParser.add_argument('-qpk', help="Quick Pick Switch - QPK will generate you a quick pick lotto ticket", required=False)
@@ -49,9 +49,10 @@ args = switchParser.parse_args()
 
 if __name__ == "__main__":
     if(args.qpk):
-        ticket = LottoTicket([], True)
+        ticket = QuickPick()
         ticket.printTicket()
     elif(args.pyo):
-        print("PYO")
+        ticket = PickYourOwn([1, 2, 3 ,4 ,5 ,6 ,7])
+        ticket.printTicket()
     elif(args.enc):
         print("ENC")
