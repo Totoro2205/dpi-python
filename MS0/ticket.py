@@ -8,6 +8,7 @@ class LottoTicket:
     43, 44, 45, 46, 47, 48, 49, 50]
 
     firstLine = []
+    encoreNumbers = []
 
     #Random Number Generator for Lotto tickets
     def randomGenerator(self):
@@ -15,7 +16,7 @@ class LottoTicket:
         while len(returnList) < 7:
             number = random.choice(self.numberPool)
             if(number not in returnList):
-                 returnList.append(random.choice(self.numberPool))
+                 returnList.append(number)
         return returnList
 
     #Ticket Lines Printer
@@ -24,6 +25,13 @@ class LottoTicket:
         print("-------------------------")
         print(self.secondLine)
         print(self.thirdLine)
+        if(len(self.encoreNumbers) > 0):
+            print("-------- Encore ---------")
+            print(self.encoreNumbers)
+
+    #Sets Encore Numbers
+    def setEncoreNumbers(self):
+        self.encoreNumbers = self.randomGenerator()
 
     #Constructor
     def __init__(self):
