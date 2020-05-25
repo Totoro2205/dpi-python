@@ -8,7 +8,7 @@ class LottoTicket:
     43, 44, 45, 46, 47, 48, 49, 50]
 
     firstLine = []
-    encoreNumbers = []
+    encorePlayed = False
 
     #Random Number Generator for Lotto tickets
     def randomGenerator(self):
@@ -21,17 +21,14 @@ class LottoTicket:
 
     #Ticket Lines Printer
     def printTicketLines(self):
-        print(self.firstLine)
+        print(*self.firstLine, sep="  ")
         print("-------------------------")
-        print(self.secondLine)
-        print(self.thirdLine)
-        if(len(self.encoreNumbers) > 0):
-            print("-------- Encore ---------")
-            print(self.encoreNumbers)
-
-    #Sets Encore Numbers
-    def setEncoreNumbers(self):
-        self.encoreNumbers = self.randomGenerator()
+        print(*self.secondLine, sep="  ")
+        print(*self.thirdLine, sep="  ")
+        if(self.encorePlayed):
+            print("--- Encore Played ---")
+        else:
+            print("--- Encore Not Played ---")
 
     #Constructor
     def __init__(self):
@@ -42,9 +39,10 @@ class LottoTicket:
 class QuickPick(LottoTicket):
 
     #Constructor
-    def __init__(self):
+    def __init__(self, encorePlayed):
         LottoTicket.__init__(self)
         self.firstLine = self.randomGenerator()
+        self.encorePlayed = encorePlayed
 
     #Ticket Printer
     def printTicket(self):
@@ -55,9 +53,19 @@ class QuickPick(LottoTicket):
 class PickYourOwn(LottoTicket):
 
     #Constructor
-    def __init__(self, firstLine):
+    def __init__(self, firstLine, encorePlayed):
         LottoTicket.__init__(self)
         self.firstLine = firstLine
+        self.validateInput()
+        self.encorePlayed = encorePlayed
+
+    #Validates User's Input against duplicates or numbers out of the pool
+    def validateInput(self):
+        for number in self.firstLine:
+            if(number not in self.numberPool):
+                raise ValueError("Invalid value inserted: {0}, please selected a number between 1 & 50".format(number))
+            if(self.firstLine.count(number) > 1):
+                raise ValueError("Duplicate value inserted: {0}, please insert only unique numbers between 1 & 50".format(number))
 
     #Ticket Printer
     def printTicket(self):
