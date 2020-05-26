@@ -10,7 +10,7 @@ class LottoTicket:
     date = date.today()
 
     # Random Number Generator for Lotto tickets
-    def randomGenerator(self):
+    def randomLineGenerator(self):
         returnList = []
         while len(returnList) < self.numbersLength:
             number = random.choice(self.numberPool)
@@ -87,7 +87,7 @@ class LottoMax(LottoTicket):
             48,
             49,
             50]
-        self.ticketLines.append(self.randomGenerator())
+        self.ticketLines.append(self.randomLineGenerator())
 
 
 class LottoSixFortyNine(LottoTicket):
@@ -206,8 +206,8 @@ class QuickPick(LottoTicket):
     def __init__(self, encorePlayed, lottoTicket):
         self.numberPool = lottoTicket.numberPool
         self.numbersLength = lottoTicket.numbersLength
-        self.ticketLines.append(self.randomGenerator())
-        self.ticketLines.insert(0, self.randomGenerator())
+        self.ticketLines.append(self.randomLineGenerator())
+        self.ticketLines.insert(0, self.randomLineGenerator())
         self.encorePlayed = encorePlayed
 
     # Ticket Printer
@@ -223,7 +223,7 @@ class PickYourOwn(LottoTicket):
     def __init__(self, firstLine, encorePlayed, lottoTicket):
         self.numberPool = lottoTicket.numberPool
         self.numbersLength = lottoTicket.numbersLength
-        self.ticketLines.append(self.randomGenerator())
+        self.ticketLines.append(self.randomLineGenerator())
         self.ticketLines.insert(0, firstLine)
         self.validateInput()
         self.encorePlayed = encorePlayed
