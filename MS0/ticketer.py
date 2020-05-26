@@ -22,10 +22,10 @@
 #                      ticketer.py (-type)  -pick x x x x x x x : will generate a Pick Your Own ticket, the numbers on the ticket to be picked need to be added
 #                                           right after the switch, if the switch -encore is added, the numbers are added to the Encore draw
 #
-#       Output:  The program outputs the 2 or 3 generated ticket lines with the current date and a text indicating if Encore was played or not
+#       Output:  The program outputs the 2 or 3 generated ticket ticketLines with the current date and a text indicating if Encore was played or not
 #
 #    Algorithm:  The program has a pool of numbers following OLG's Lotto Max, Lottario or Lotto 649 1 to 45/49 or 50 from which users can pick for Pick Your Own tickets and from which
-#                  random ticket numbers are generated for the subsequent lines using the numbers on the pool for the whole ticket on Quick Pick tickets using the random library.
+#                  random ticket numbers are generated for the subsequent ticketLines using the numbers on the pool for the whole ticket on Quick Pick tickets using the random library.
 #                  The algorithm also validates user inputs against invalid values that are outside the pool and/or are not integers, or duplicates.
 #                  CLI switches are used to give users options for ticket generation and process the values that the users will input for Pick Your Own tickets.
 #

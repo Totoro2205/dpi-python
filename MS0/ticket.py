@@ -4,7 +4,7 @@ import random
 
 class LottoTicket:
     numberPool = []
-    lines = []
+    ticketLines = []
     encorePlayed = False
     numbersLength = 0
     date = date.today()
@@ -20,8 +20,8 @@ class LottoTicket:
 
     # Ticket Lines Printer
     def printTicketLines(self):
-        for line in self.lines:
-            if(self.lines.index(line) == 1):
+        for line in self.ticketLines:
+            if(self.ticketLines.index(line) == 1):
                 print("-------------------------")
             print(*line, sep="  ")
         if(self.encorePlayed):
@@ -87,7 +87,7 @@ class LottoMax(LottoTicket):
             48,
             49,
             50]
-        self.lines.append(self.randomGenerator())
+        self.ticketLines.append(self.randomGenerator())
 
 
 class LottoSixFortyNine(LottoTicket):
@@ -206,8 +206,8 @@ class QuickPick(LottoTicket):
     def __init__(self, encorePlayed, lottoTicket):
         self.numberPool = lottoTicket.numberPool
         self.numbersLength = lottoTicket.numbersLength
-        self.lines.append(self.randomGenerator())
-        self.lines.insert(0, self.randomGenerator())
+        self.ticketLines.append(self.randomGenerator())
+        self.ticketLines.insert(0, self.randomGenerator())
         self.encorePlayed = encorePlayed
 
     # Ticket Printer
@@ -223,20 +223,20 @@ class PickYourOwn(LottoTicket):
     def __init__(self, firstLine, encorePlayed, lottoTicket):
         self.numberPool = lottoTicket.numberPool
         self.numbersLength = lottoTicket.numbersLength
-        self.lines.append(self.randomGenerator())
-        self.lines.insert(0, firstLine)
+        self.ticketLines.append(self.randomGenerator())
+        self.ticketLines.insert(0, firstLine)
         self.validateInput()
         self.encorePlayed = encorePlayed
 
     # Validates User's Input against duplicates or numbers out of the pool
     def validateInput(self):
-        for number in self.lines[0]:
+        for number in self.ticketLines[0]:
             if(number not in self.numberPool):
                 raise ValueError(
                     "Invalid value inserted: {0}, please selected a number between 1 & {1}".format(
                         number, max(
                             self.numberPool)))
-            if(self.lines[0].count(number) > 1):
+            if(self.ticketLines[0].count(number) > 1):
                 raise ValueError(
                     "Duplicate value inserted: {0}, please insert only unique numbers between 1 & {1}".format(
                         number, max(
