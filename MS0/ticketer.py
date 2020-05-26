@@ -60,19 +60,23 @@ args = switchParser.parse_args()
 if __name__ == "__main__":
 
     try:
-        totalNumbers = len(args.pick)
+        if(args.pick):
+            totalNumbers = len(args.pick)
+        else:
+            totalNumbers = -1
+            
         if(args.sixfournine):
-            if(totalNumbers != 6):
+            if(totalNumbers != 6 and totalNumbers != -1):
                 raise ValueError("You picked {0} numbers. Please pick six numbers for your Lotto 649 Ticket".format(totalNumbers))
             baseTicket = LottoSixFortyNine()
 
         elif(args.lottario):
-            if(totalNumbers != 6):
+            if(totalNumbers != 6 and totalNumbers != -1):
                 raise ValueError("You picked {0} numbers. Please pick six numbers for your Lottario Ticket".format(totalNumbers))
             baseTicket = Lottario()
 
         elif(args.lottomax):
-            if(totalNumbers != 7):
+            if(totalNumbers != 7 and totalNumbers != -1):
                 raise ValueError("You picked {0} numbers. Please pick seven numbers for your LottoMax Ticket".format(totalNumbers))
             baseTicket = LottoMax()
         
