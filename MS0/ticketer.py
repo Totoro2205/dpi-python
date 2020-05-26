@@ -35,7 +35,7 @@
  #
 #==============================================================================
 
-#!/usr/bin/python3
+!/usr/bin/python3
 
 import argparse
 from ticket import LottoTicket, QuickPick, PickYourOwn
