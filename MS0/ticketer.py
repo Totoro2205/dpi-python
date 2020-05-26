@@ -38,28 +38,49 @@
 #!/usr/bin/python3
 
 import argparse
-from ticket import LottoTicket, QuickPick, PickYourOwn
+from ticket import LottoTicket, QuickPick, PickYourOwn, LottoSixFortyNine, Lottario, LottoMax
 
 switchParser = argparse.ArgumentParser(description="This script will generate you a lotto ticket!")
+
+#Ticket type selection
+group = switchParser.add_mutually_exclusive_group(required=True)
+group.add_argument('-sixfournine', help="Generates a Lotto 649 ticket. If used with -pick select 6 numbers to play", action='store_true')
+group.add_argument('-lottario', help="Generates a Lottario ticket. If used with -pick select 6 numbers to play", action='store_true')
+group.add_argument('-lottomax', help="Generates a LottoMax ticket. If used with -pick select 7 numbers to play", action='store_true')
+
 #Quick Pick Switch
 switchParser.add_argument('-quick', help="Quick Pick will generate you a quick pick lotto ticket with randomly selected numbers.", required=False, action='store_true')
 #Pick Your Own Switch
-switchParser.add_argument('-pick', help="Pick Your Own will generate you a pick your own ticket, select 7 unique numbers between 1 & 50 and we will generate another 2 sets of random numbers for your ticket.", required=False, nargs=7)
+switchParser.add_argument('-pick', help="Pick Your Own will generate you a pick your own ticket, with numbers you picked!", required=False, nargs='+')
+
 switchParser.add_argument('-encore', help="Encore will be added to your ticket for more chances to win!", required=False, action='store_true')
 
 args = switchParser.parse_args()
 
 if __name__ == "__main__":
 
-    ticket = LottoTicket()
     try:
+        totalNumbers = len(args.pick)
+        if(args.sixfournine):
+            if(totalNumbers != 6):
+                raise ValueError("You picked {0} numbers. Please pick six numbers for your Lotto 649 Ticket".format(totalNumbers))
+            baseTicket = LottoSixFortyNine()
+
+        elif(args.lottario):
+            if(totalNumbers != 6):
+                raise ValueError("You picked {0} numbers. Please pick six numbers for your Lottario Ticket".format(totalNumbers))
+            baseTicket = Lottario()
+
+        elif(args.lottomax):
+            if(totalNumbers != 7):
+                raise ValueError("You picked {0} numbers. Please pick seven numbers for your LottoMax Ticket".format(totalNumbers))
+            baseTicket = LottoMax()
+        
         if(args.quick):
-
             if(args.encore):
-                ticket = QuickPick(True)
+                ticket = QuickPick(True, baseTicket)
             else:
-                ticket = QuickPick(False)
-
+                ticket = QuickPick(False, baseTicket)
         elif(args.pick):
             argsAsInt = []
 
@@ -69,10 +90,9 @@ if __name__ == "__main__":
                 raise ValueError("Invalid value inserted, please insert only numbers")
 
             if(args.encore):
-                ticket = PickYourOwn(argsAsInt, True)
+                ticket = PickYourOwn(argsAsInt, True, baseTicket)
             else:
-                ticket = PickYourOwn(argsAsInt, False)
-
+                ticket = PickYourOwn(argsAsInt, False, baseTicket)
         elif(args.encore):
             raise AttributeError("The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
         else:
