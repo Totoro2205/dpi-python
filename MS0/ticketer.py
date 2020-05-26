@@ -3,7 +3,7 @@
  #
  #       Author:  Bruno Alexander Cremonese de Morais
  #     Language:  Python, using argparse, datetime and random libraries
- #   To Compile:  python .\ticketer.py [-h] [-quick] [-pick PICK PICK PICK PICK PICK PICK PICK] [-encore]
+ #   To Compile:  python3 .\ticketer.py [-h] [-quick] [-pick PICK PICK PICK PICK PICK PICK PICK] [-encore]
  #
  #        Class:  DPI 912: Python for Programmers: Sockets and Security
  #    Professor:  Harvey Kaduri
