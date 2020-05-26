@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # ==============================================================================
 #   Assignment:  Milestone 0
 #
@@ -34,8 +36,6 @@
 #   Classification: N/A
 #
 # ==============================================================================
-
-#!/usr/bin/env python3
 
 import argparse
 from ticket import LottoTicket, QuickPick, PickYourOwn, LottoSixFortyNine, Lottario, LottoMax
