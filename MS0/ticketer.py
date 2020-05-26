@@ -128,7 +128,7 @@ if __name__ == "__main__":
                 "The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
         else:
             raise AttributeError(
-                "None or invalid arguments given, ticket not generated!")
+                "None or invalid arguments given, ticket not generated! Please pick a ticket mode, either Quick Pick or Pick Your Own Ticket. Use the -h switch if required.")
 
         ticket.printTicket()
 
