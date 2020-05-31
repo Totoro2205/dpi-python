@@ -14,8 +14,8 @@ class LottoTicket:
         returnList = []
         while len(returnList) < self.numbersLength:
             number = random.choice(self.numberPool)
-            if(number not in returnList):
-                returnList.append(number)
+            returnList.append(number)
+            self.numberPool.remove(number)
         return returnList
 
     # Ticket Lines Printer
@@ -36,7 +36,7 @@ class LottoMax(LottoTicket):
     # Constructor
     def __init__(self):
         self.numbersLength = 7
-        self.numberPool = list(range(50))
+        self.numberPool = list(range(1, 50))
         self.ticketLines.append(self.randomLineGenerator())
 
 
@@ -44,13 +44,13 @@ class LottoSixFortyNine(LottoTicket):
     # Constructor
     def __init__(self):
         self.numbersLength = 6
-        self.numberPool = list(range(49))
+        self.numberPool = list(range(1, 49))
 
 class Lottario(LottoTicket):
     # Constructor
     def __init__(self):
         self.numbersLength = 6
-        self.numberPool = list(range(45))
+        self.numberPool = list(range(1, 45))
 # Game Types
 
 
