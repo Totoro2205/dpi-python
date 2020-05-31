@@ -39,78 +39,101 @@
 
 import argparse
 from ticket import LottoTicket, QuickPick, PickYourOwn, LottoSixFortyNine, Lottario, LottoMax, TicketRequest
-from socketManager import ServerSocketManager
+from socketManager import ClientSocketManager
 
 switchParser = argparse.ArgumentParser(
-    description="Welcome to your Python Lotto Ticket Server!")
+    description="Welcome to your Python Lotto Ticketer!")
+
+# Ticket type selection
+group = switchParser.add_mutually_exclusive_group(required=True)
+group.add_argument(
+    '-sixfournine',
+    help="Generates a Lotto 649 ticket. If used with -pick select 6 numbers to play",
+    action='store_true')
+group.add_argument(
+    '-lottario',
+    help="Generates a Lottario ticket. If used with -pick select 6 numbers to play",
+    action='store_true')
+group.add_argument(
+    '-lottomax',
+    help="Generates a LottoMax ticket. If used with -pick select 7 numbers to play",
+    action='store_true')
+
+# Quick Pick Switch
+switchParser.add_argument(
+    '-quick',
+    help="Quick Pick will generate you a quick pick lotto ticket with randomly selected numbers.",
+    required=False,
+    action='store_true')
+# Pick Your Own Switch
+switchParser.add_argument(
+    '-pick',
+    help="Pick Your Own will generate you a pick your own ticket, with numbers you picked! (6 or 7 numbers depending on your ticket type)",
+    required=False,
+    nargs='+')
+
+switchParser.add_argument(
+    '-encore',
+    help="Encore will be added to your ticket for more chances to win!",
+    required=False,
+    action='store_true')
 
 # Port selector
 switchParser.add_argument(
     '-port',
     help="Port the server will listen on",
-    required=False,
+    required=True,
     default=5111,
     type=int,
     nargs=1)
 
+# Host selector
+switchParser.add_argument(
+    '-host',
+    help="Host server address",
+    required=True,
+    nargs=1)
+
 args = switchParser.parse_args()
 
-def clientTicketDataParser(commandData):
-    if not commandData:
-        raise ValueError("Empty Command Received By The Client!")
-    request = TicketRequest()
-    request.deserializeRequest(commandData)
-    return request
-
-def requestProcessor(request):
-    if(request.pickedNumbers):
-        totalNumbers = len(request.pickedNumbers)
-    else:
-        totalNumbers = -1
-
-    if(request.ticketType == "SFN"):
-        if(totalNumbers != 6 and totalNumbers != -1):
-            raise ValueError(
-                "You picked {0} numbers. Please pick six numbers for your Lotto 649 Ticket".format(totalNumbers))
-        baseTicket = LottoSixFortyNine()
-
-    elif(request.ticketType == "LTR"):
-        if(totalNumbers != 6 and totalNumbers != -1):
-            raise ValueError(
-                "You picked {0} numbers. Please pick six numbers for your Lottario Ticket".format(totalNumbers))
-        baseTicket = Lottario()
-
-    elif(request.ticketType == "LMX"):
-        if(totalNumbers != 7 and totalNumbers != -1):
-            raise ValueError(
-                "You picked {0} numbers. Please pick seven numbers for your LottoMax Ticket".format(totalNumbers))
-        baseTicket = LottoMax()
-
-    if(request.playType == "Q"):
-        if(request.encorePlayed):
-            ticket = QuickPick(True, baseTicket)
-        else:
-            ticket = QuickPick(False, baseTicket)
-    elif(request.playType == "P"):
-        if(request.encorePlayed):
-            ticket = PickYourOwn(request.pickedNumbers, True, baseTicket)
-        else:
-            ticket = PickYourOwn(request.pickedNumbers, False, baseTicket)
-    elif(request.encorePlayed):
-        raise AttributeError(
-            "The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
-    else:
-        raise AttributeError(
-            "None or invalid arguments given, ticket not generated! Please pick a ticket mode, either Quick Pick or Pick Your Own Ticket. Use the -h switch if required.")
-    return ticket
-
 if __name__ == "__main__":
-    print("Welcome to your Python Lotto Ticket Server!")
-    socketManager = ServerSocketManager(args.port)
+    print("Welcome to your Python Lotto Ticket Client!")
+    socketManager = ClientSocketManager(args.host[0], args.port[0])
     try:
-        request = clientTicketDataParser(socketManager.receiveData())
-        ticket = requestProcessor(request)
-        socketManager.sendData(ticket.serializeTicket())
-        socketManager.closeConnection()
+        request = TicketRequest()
+        if(args.quick):
+            request.playType = "Q"
+            if(args.encore):
+                request.encorePlayed = True
+
+        elif (args.pick):
+            request.playType = "P"
+            argsAsInt = []
+            try:
+                argsAsInt = list(map(int, args.pick))
+                request.pickedNumbers = argsAsInt
+            except ValueError:
+                raise ValueError(
+                    "Invalid value inserted, please insert only numbers")
+            if(args.encore):
+                request.encorePlayed = True
+
+        elif(args.encore):
+            raise AttributeError(
+                "The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
+        else:
+            raise ValueError("No valid play type selected, please select either a Quick Pick or Pick your own type of ticket")
+
+        if(args.lottomax):
+            request.ticketType = "LMX"
+        elif (args.lottario):
+            request.ticketType = "LTR"
+        elif (args.sixfournine):
+            request.ticketType = "SFN"
+        else:
+            raise ValueError("No valid ticket type selected, please select either LottoMax, Lottario and Lotto Six Forty Nine")
+
+        socketManager.sendData(request.serializeRequest())
     except Exception as ex:
         socketManager.sendErrorAndCloseConnection(ex)
+    
