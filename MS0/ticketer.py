@@ -68,30 +68,30 @@ def requestProcessor(request):
     else:
         totalNumbers = -1
 
-    if(request.ticketType == "SFN"):
+    if(request.playType == "SFN"):
         if(totalNumbers != 6 and totalNumbers != -1):
             raise ValueError(
                 "You picked {0} numbers. Please pick six numbers for your Lotto 649 Ticket".format(totalNumbers))
         baseTicket = LottoSixFortyNine()
 
-    elif(request.ticketType == "LTR"):
+    elif(request.playType == "LTR"):
         if(totalNumbers != 6 and totalNumbers != -1):
             raise ValueError(
                 "You picked {0} numbers. Please pick six numbers for your Lottario Ticket".format(totalNumbers))
         baseTicket = Lottario()
 
-    elif(request.ticketType == "LMX"):
+    elif(request.playType == "LMX"):
         if(totalNumbers != 7 and totalNumbers != -1):
             raise ValueError(
                 "You picked {0} numbers. Please pick seven numbers for your LottoMax Ticket".format(totalNumbers))
         baseTicket = LottoMax()
 
-    if(request.playType == "Q"):
+    if(request.ticketType == "Q"):
         if(request.encorePlayed):
             ticket = QuickPick(True, baseTicket)
         else:
             ticket = QuickPick(False, baseTicket)
-    elif(request.playType == "P"):
+    elif(request.ticketType == "P"):
         if(request.encorePlayed):
             ticket = PickYourOwn(request.pickedNumbers, True, baseTicket)
         else:

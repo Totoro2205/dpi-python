@@ -17,8 +17,8 @@ class LottoTicket:
         returnList = []
         while len(returnList) < self.numbersLength:
             number = random.choice(self.numberPool)
-            returnList.append(number)
-            self.numberPool.remove(number)
+            if(number not in returnList):
+                returnList.append(number)
         return returnList
 
     # Unique Identifier Generator
@@ -135,11 +135,11 @@ class PickYourOwn(LottoTicket):
 # Ticket request sent by the client and read by the server
 class TicketRequest:
 
-    def __init__(self, playType = None, ticketType = None, encorePlayed = False, pickedNumbers = None):
+    def __init__(self, playType = None, ticketType = None, encorePlayed = False, pickedNumbers = []):
         self.playType = playType
         self.ticketType = ticketType
         self.encorePlayed = encorePlayed
-        self.pickedNumbers = pickedNumbers
+        self.pickedNumbers = []
 
     # Request Serialization
     def serializeRequest(self):
@@ -148,9 +148,10 @@ class TicketRequest:
         serializationBuffer += self.playType
         serializationBuffer += '_'
         if self.pickedNumbers is not None:
-            serializationBuffer += len(self.pickedNumbers)
+            serializationBuffer += str(len(self.pickedNumbers))
             for number in self.pickedNumbers:
-                serializationBuffer += number
+                serializationBuffer += '-'
+                serializationBuffer += str(number)
         else:
             serializationBuffer += '0'
         serializationBuffer += '_'
@@ -162,12 +163,17 @@ class TicketRequest:
     
     # Request Deserialization
     def deserializeRequest(self, serializationBuffer):
-        bufferAsString = str(serializationBuffer)
-        buffer = bufferAsString.split("_")
+        bufferAsString = str(serializationBuffer.decode('utf-8'))
+        buffer = bufferAsString.split('_')
         self.playType = buffer[0]
         self.ticketType = buffer[1]
         if buffer[2] == 0:
             self.pickedNumbers = None
+        else:
+            pickedNumbersBuffer = buffer[2].split('-')
+            for i in range(1, int(pickedNumbersBuffer[0]) + 1):
+                self.pickedNumbers.append(int(pickedNumbersBuffer[i]))
+            
 
         
     
