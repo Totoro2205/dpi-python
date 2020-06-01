@@ -143,14 +143,16 @@ class TicketRequest:
 
     # Request Serialization
     def serializeRequest(self):
-        serializationBuffer: str = ''
-        serializationBuffer += self.ticketType
+        serializationBuffer = self.ticketType
+        serializationBuffer += '_'
         serializationBuffer += self.playType
         serializationBuffer += '_'
         if self.pickedNumbers is not None:
             serializationBuffer += len(self.pickedNumbers)
             for number in self.pickedNumbers:
                 serializationBuffer += number
+        else:
+            serializationBuffer += '0'
         serializationBuffer += '_'
         if self.encorePlayed:
             serializationBuffer += '1'
@@ -160,15 +162,12 @@ class TicketRequest:
     
     # Request Deserialization
     def deserializeRequest(self, serializationBuffer):
-        self.ticketType = serializationBuffer[0]
-        self.playType = serializationBuffer[1]
-        if serializationBuffer[2] is not None:
-            length = serializationBuffer[2]
-            for i in length:
-                self.pickedNumbers = serializationBuffer[i]
-            self.encorePlayed = serializationBuffer[length + 2]
-        else:
-            self.pickedNumbers = serializationBuffer[2]
-            self.encorePlayed = serializationBuffer[3]
+        bufferAsString = str(serializationBuffer)
+        buffer = bufferAsString.split("_")
+        self.playType = buffer[0]
+        self.ticketType = buffer[1]
+        if buffer[2] == 0:
+            self.pickedNumbers = None
+
         
     
