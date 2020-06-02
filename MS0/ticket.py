@@ -1,6 +1,7 @@
 from datetime import date, datetime
 import random
 
+
 class LottoTicket:
     numberPool = []
     ticketLines = []
@@ -25,7 +26,8 @@ class LottoTicket:
 
     # Unique Identifier Generator
     def generateUniqueIdentifier(self):
-        return self.ticketType + self.playType + "." + self.date.strftime("%m%d%Y") + "." + str(random.randint(100000, 999999))
+        return self.ticketType + self.playType + "." + \
+            self.date.strftime("%m%d%Y") + "." + str(random.randint(100000, 999999))
 
     def writeTicketToFile(self):
         file = open("lottoTickets.txt", "a")
@@ -67,7 +69,7 @@ class LottoTicket:
         print("")
         self.writeTicketToFile()
 
-    #Ticket Serialization
+    # Ticket Serialization
     def serializeTicket(self):
         serializationBuffer = ''
         serializationBuffer += self.uniqueIdentifier
@@ -78,7 +80,7 @@ class LottoTicket:
         serializationBuffer += '_'
 
         serializedLinesString = ''
-        for line in self.ticketLines: 
+        for line in self.ticketLines:
             for number in line:
                 serializedLinesString += str(number)
                 if number is not line[-1]:
@@ -93,12 +95,12 @@ class LottoTicket:
         else:
             serializationBuffer += '0'
         return serializationBuffer
-    
-    #Ticket Deserialization
+
+    # Ticket Deserialization
     def deserializeTicket(self, serializationBuffer):
         try:
             bufferAsString = str(serializationBuffer.decode('utf-8'))
-        except:
+        except BaseException:
             bufferAsString = serializationBuffer
 
         buffer = bufferAsString.split('_')
@@ -125,6 +127,7 @@ class LottoMax(LottoTicket):
         self.numberPool = list(range(1, 50))
         self.ticketLines.append(self.randomLineGenerator())
 
+
 class LottoSixFortyNine(LottoTicket):
     # Constructor
     def __init__(self):
@@ -132,6 +135,7 @@ class LottoSixFortyNine(LottoTicket):
         self.ticketType = "SFN"
         self.numbersLength = 6
         self.numberPool = list(range(1, 49))
+
 
 class Lottario(LottoTicket):
     # Constructor
@@ -142,6 +146,8 @@ class Lottario(LottoTicket):
         self.numberPool = list(range(1, 45))
 
 # Game Types
+
+
 class QuickPick(LottoTicket):
 
     # Constructor
@@ -156,6 +162,7 @@ class QuickPick(LottoTicket):
         self.encorePlayed = encorePlayed
         self.uniqueIdentifier = self.generateUniqueIdentifier()
         del lottoTicket
+
 
 class PickYourOwn(LottoTicket):
 
@@ -188,9 +195,17 @@ class PickYourOwn(LottoTicket):
                             self.numberPool)))
 
 # Ticket request sent by the client and read by the server
+
+
 class TicketRequest:
 
-    def __init__(self, playType = None, ticketType = None, encorePlayed = False, pickedNumbers = [], ticketAmount = 1):
+    def __init__(
+            self,
+            playType=None,
+            ticketType=None,
+            encorePlayed=False,
+            pickedNumbers=[],
+            ticketAmount=1):
         self.playType = playType
         self.ticketType = ticketType
         self.encorePlayed = encorePlayed
@@ -218,7 +233,7 @@ class TicketRequest:
         serializationBuffer += '_'
         serializationBuffer += str(self.ticketAmount)
         return serializationBuffer
-    
+
     # Request Deserialization
     def deserializeRequest(self, serializationBuffer):
         bufferAsString = str(serializationBuffer.decode('utf-8'))
@@ -279,7 +294,6 @@ class TicketRequest:
                     "The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
             else:
                 raise AttributeError(
-                "None or invalid arguments given, ticket not generated! Please pick a ticket mode, either Quick Pick or Pick Your Own Ticket. Use the -h switch if required.")
+                    "None or invalid arguments given, ticket not generated! Please pick a ticket mode, either Quick Pick or Pick Your Own Ticket. Use the -h switch if required.")
             tickets.append(ticket)
         return tickets
-            

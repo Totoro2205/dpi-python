@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
 # ==============================================================================
-#   Assignment:  Milestone 0
+#   Assignment:  Milestone 1
 #
 #       Author:  Bruno Alexander Cremonese de Morais
-#     Language:  Python, using argparse, datetime and random libraries
-#   To Compile:  python3 .\ticketer.py [-h] (-sixfournine | -lottario | -lottomax) [-quick] [-pick PICK [PICK ...]] [-encore]
+#     Language:  Python, using argparse, datetime, socketManager and random libraries
+#   To Compile:  python3 .\client.py [-h] (-sixfournine | -lottario | -lottomax) [-quick] [-pick PICK [PICK ...]] [-encore] -port PORT -host HOST -tickets TICKETS
 #
 #        Class:  DPI 912: Python for Programmers: Sockets and Security
 #    Professor:  Harvey Kaduri
-#     Due Date:  May 26th, 2020
-#    Submitted:  May 26th, 2020
+#     Due Date:  June 2nd, 2020
+#    Submitted:  June 2nd, 2020
 #
 # -----------------------------------------------------------------------------
 #
@@ -18,16 +18,15 @@
 #
 #        Input:  The program requires different inputs depending on the type of ticket the user wants generated,
 #                  as outlined below:
-#                      ticketer.py (-type) -quick : will generate a Quick Pick ticket, if the switch -encore is added, the numbers are added to the Encore draw
-#                      ticketer.py (-type)  -pick x x x x x x x : will generate a Pick Your Own ticket, the numbers on the ticket to be picked need to be added
+#                      client.py (-type) -quick : will generate a Quick Pick ticket, if the switch -encore is added, the numbers are added to the Encore draw
+#                      client.py (-type)  -pick x x x x x x x : will generate a Pick Your Own ticket, the numbers on the ticket to be picked need to be added
 #                                           right after the switch, if the switch -encore is added, the numbers are added to the Encore draw
+#                   Added to the previous mentioned inputs, the port and host's IPV6 address to connect to the daemon are required as well as the amount of tickets to be generated
 #
-#       Output:  The program outputs the 2 or 3 generated ticket ticketLines with the current date and a text indicating if Encore was played or not
+#       Output:  The program outputs the generated tickets with the unique ID and a text indicating if Encore was played or not as well as saves the same information to a file
 #
-#    Algorithm:  The program has a pool of numbers following OLG's Lotto Max, Lottario or Lotto 649 1 to 45/49 or 50 from which users can pick for Pick Your Own tickets and from which
-#                  random ticket numbers are generated for the subsequent ticketLines using the numbers on the pool for the whole ticket on Quick Pick tickets using the random library.
-#                  The algorithm also validates user inputs against invalid values that are outside the pool and/or are not integers, or duplicates.
-#                  CLI switches are used to give users options for ticket generation and process the values that the users will input for Pick Your Own tickets.
+#    Algorithm:  Based on the used switches the program creates a request file that is sent to the daemon so it can be processed and generate tickets based on user's input.
+#                   It then deserializes the response and display and saves the tickets received from the daemon
 #
 #   Required Features Not Included:  None
 #
@@ -106,7 +105,7 @@ args = switchParser.parse_args()
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Client!")
     socketManager = ClientSocketManager(args.host[0], args.port[0])
-    
+
     try:
         request = TicketRequest()
         if(args.quick):
@@ -130,7 +129,8 @@ if __name__ == "__main__":
             raise AttributeError(
                 "The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
         else:
-            raise ValueError("No valid play type selected, please select either a Quick Pick or Pick your own type of ticket")
+            raise ValueError(
+                "No valid play type selected, please select either a Quick Pick or Pick your own type of ticket")
 
         if(args.lottomax):
             request.ticketType = "LMX"
@@ -139,8 +139,9 @@ if __name__ == "__main__":
         elif (args.sixfournine):
             request.ticketType = "SFN"
         else:
-            raise ValueError("No valid ticket type selected, please select either LottoMax, Lottario and Lotto Six Forty Nine")
-        
+            raise ValueError(
+                "No valid ticket type selected, please select either LottoMax, Lottario and Lotto Six Forty Nine")
+
         ticketAmount = int(args.tickets[0])
         request.ticketAmount = ticketAmount
         socketManager.sendData(request.serializeRequest())
@@ -156,4 +157,3 @@ if __name__ == "__main__":
         socketManager.closeConnection()
     except Exception as ex:
         socketManager.sendErrorAndCloseConnection(ex)
-    
