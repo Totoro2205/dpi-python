@@ -1,6 +1,5 @@
-from datetime import date
+from datetime import date, datetime
 import random
-
 
 class LottoTicket:
     numberPool = []
@@ -23,7 +22,7 @@ class LottoTicket:
 
     # Unique Identifier Generator
     def generateUniqueIdentifier(self):
-        self.uniqueIdentifier = self.ticketType + self.playType + self.date + "." + random.randint(100000, 999999)
+        return self.ticketType + self.playType + "." + self.date.strftime("%m%d%Y") + "." + str(random.randint(100000, 999999))
 
     # Ticket Lines Printer
     def printTicketLines(self):
@@ -38,13 +37,27 @@ class LottoTicket:
 
     #Ticket Serialization
     def serializeTicket(self):
-        serializationBuffer = []
-        serializationBuffer.append(self.date)
-        serializationBuffer.append(self.uniqueIdentifier)
-        serializationBuffer.append(self.ticketType)
-        serializationBuffer.append(self.playType)
-        serializationBuffer.append(self.ticketLines)
-        serializationBuffer.append(self.encorePlayed)
+        serializationBuffer = ''
+        serializationBuffer += self.uniqueIdentifier
+        serializationBuffer += '_'
+        serializationBuffer += self.ticketType
+        serializationBuffer += '_'
+        serializationBuffer += self.playType
+        serializationBuffer += '_'
+
+        serializedLinesString = ''
+        for line in self.ticketLines: 
+            serializedLinesString += ':'
+            for number in line:
+                serializedLinesString += '-'
+                serializedLinesString += str(number)
+        serializationBuffer += serializedLinesString
+
+        serializationBuffer += '_'
+        if self.encorePlayed:
+            serializationBuffer += '1'
+        else:
+            serializationBuffer += '0'
         return serializationBuffer
     
     #Ticket Deserialization
@@ -92,6 +105,7 @@ class QuickPick(LottoTicket):
         self.ticketLines.append(self.randomLineGenerator())
         self.ticketLines.insert(0, self.randomLineGenerator())
         self.encorePlayed = encorePlayed
+        self.uniqueIdentifier = self.generateUniqueIdentifier()
 
     # Ticket Printer
     def printTicket(self):
@@ -111,6 +125,7 @@ class PickYourOwn(LottoTicket):
         self.ticketLines.insert(0, firstLine)
         self.validateInput()
         self.encorePlayed = encorePlayed
+        self.uniqueIdentifier = self.generateUniqueIdentifier()
 
     # Validates User's Input against duplicates or numbers out of the pool
     def validateInput(self):

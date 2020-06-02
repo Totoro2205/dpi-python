@@ -41,7 +41,7 @@ class ServerSocketManager(SocketManager):
     #Sends data to client, if failed it sends an error message to STDOUT
     def sendData(self, data):
         try:
-            self.connection.sendall(data)
+            self.connection.sendall(data.encode('utf-8'))
         except Exception as ex:
             self.sendErrorAndCloseConnection(ex)
 
