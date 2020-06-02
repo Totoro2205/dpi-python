@@ -62,57 +62,13 @@ def clientTicketDataParser(commandData):
     request.deserializeRequest(commandData)
     return request
 
-def requestProcessor(request):
-
-    if(request.pickedNumbers):
-        totalNumbers = len(request.pickedNumbers)
-    else:
-        totalNumbers = -1
-
-    if(request.playType == "SFN"):
-        if(totalNumbers != 6 and totalNumbers != -1):
-            raise ValueError(
-                "You picked {0} numbers. Please pick six numbers for your Lotto 649 Ticket".format(totalNumbers))
-        baseTicket = LottoSixFortyNine()
-
-    elif(request.playType == "LTR"):
-        if(totalNumbers != 6 and totalNumbers != -1):
-            raise ValueError(
-                "You picked {0} numbers. Please pick six numbers for your Lottario Ticket".format(totalNumbers))
-        baseTicket = Lottario()
-
-    elif(request.playType == "LMX"):
-        if(totalNumbers != 7 and totalNumbers != -1):
-            raise ValueError(
-                "You picked {0} numbers. Please pick seven numbers for your LottoMax Ticket".format(totalNumbers))
-        baseTicket = LottoMax()
-
-    if(request.ticketType == "Q"):
-        if(request.encorePlayed):
-            ticket = QuickPick(True, baseTicket)
-        else:
-            ticket = QuickPick(False, baseTicket)
-    elif(request.ticketType == "P"):
-        if(request.encorePlayed):
-            ticket = PickYourOwn(request.pickedNumbers, True, baseTicket)
-        else:
-            ticket = PickYourOwn(request.pickedNumbers, False, baseTicket)
-    elif(request.encorePlayed):
-        raise AttributeError(
-            "The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
-    else:
-        raise AttributeError(
-            "None or invalid arguments given, ticket not generated! Please pick a ticket mode, either Quick Pick or Pick Your Own Ticket. Use the -h switch if required.")
-    del baseTicket
-    return ticket
-
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Server!")
     while True:
         socketManager = ServerSocketManager(args.port)
         try:
             request = clientTicketDataParser(socketManager.receiveData())
-            ticket = requestProcessor(request)
+            ticket = request.getTicket()
             socketManager.sendData(ticket.serializeTicket())
             socketManager.closeConnection()
             del socketManager

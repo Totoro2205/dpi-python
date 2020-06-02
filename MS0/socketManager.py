@@ -108,5 +108,4 @@ class ClientSocketManager(SocketManager):
         data = self.localSocket.recv(2048)
         if not data:
             raise Exception("No data received")
-        #print("Data Received: {0}".format(data))
         return data
