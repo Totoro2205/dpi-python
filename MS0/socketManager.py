@@ -29,6 +29,7 @@ class ServerSocketManager(SocketManager):
                 print(msg)
                 continue
             try:
+                self.localSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 self.localSocket.bind(sa)
                 self.localSocket.listen(1)
                 print('Listening for Connections on Port: {0}'.format(port))
