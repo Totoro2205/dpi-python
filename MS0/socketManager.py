@@ -44,6 +44,7 @@ class ServerSocketManager(SocketManager):
             self.connection.sendall(data.encode('utf-8'))
         except Exception as ex:
             self.sendErrorAndCloseConnection(ex)
+        return 0
 
     #Sends error data and closes the connection
     def sendErrorAndCloseConnection(self, error):
@@ -93,6 +94,7 @@ class ClientSocketManager(SocketManager):
             self.localSocket.sendall(data.encode('utf-8'))
         except Exception as ex:
             self.sendErrorAndCloseConnection(ex)
+        return 0
 
     #Sends error data and closes the connection
     def sendErrorAndCloseConnection(self, error):

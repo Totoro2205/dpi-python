@@ -11,6 +11,9 @@ class LottoTicket:
     playType = ""
     uniqueIdentifier = ""
 
+    def __init__(self):
+        self.ticketLines = []
+
     # Random Number Generator for Lotto tickets
     def randomLineGenerator(self):
         returnList = []
@@ -43,6 +46,7 @@ class LottoTicket:
             file.write("--- Encore Played ---\n")
         else:
             file.write("--- Encore Not Played ---\n\n")
+        file.write("\n")
         file.close()
 
     # Ticket Lines Printer
@@ -60,6 +64,7 @@ class LottoTicket:
             print("--- Encore Played ---")
         else:
             print("--- Encore Not Played ---")
+        print("")
         self.writeTicketToFile()
 
     #Ticket Serialization
@@ -91,12 +96,17 @@ class LottoTicket:
     
     #Ticket Deserialization
     def deserializeTicket(self, serializationBuffer):
-        bufferAsString = str(serializationBuffer.decode('utf-8'))
+        try:
+            bufferAsString = str(serializationBuffer.decode('utf-8'))
+        except:
+            bufferAsString = serializationBuffer
+
         buffer = bufferAsString.split('_')
         self.uniqueIdentifier = buffer[0]
         self.ticketType = buffer[1]
         self.playType = buffer[2]
         ticketLineBuffer = buffer[3].split(':')
+        self.ticketLines = []
         for line in ticketLineBuffer:
             self.ticketLines.append(line.split('-'))
         if buffer[4] == '1':
@@ -180,11 +190,12 @@ class PickYourOwn(LottoTicket):
 # Ticket request sent by the client and read by the server
 class TicketRequest:
 
-    def __init__(self, playType = None, ticketType = None, encorePlayed = False, pickedNumbers = []):
+    def __init__(self, playType = None, ticketType = None, encorePlayed = False, pickedNumbers = [], ticketAmount = 1):
         self.playType = playType
         self.ticketType = ticketType
         self.encorePlayed = encorePlayed
         self.pickedNumbers = []
+        self.ticketAmount = ticketAmount
 
     # Request Serialization
     def serializeRequest(self):
@@ -204,6 +215,8 @@ class TicketRequest:
             serializationBuffer += '1'
         else:
             serializationBuffer += '0'
+        serializationBuffer += '_'
+        serializationBuffer += str(self.ticketAmount)
         return serializationBuffer
     
     # Request Deserialization
@@ -222,48 +235,51 @@ class TicketRequest:
             self.encorePlayed = True
         else:
             self.encorePlayed = False
+        self.ticketAmount = int(buffer[4])
 
     # Processes request and returns the ticket based on ticket rules
-    def getTicket(self):
-
-        if(self.pickedNumbers):
-            totalNumbers = len(self.pickedNumbers)
-        else:
-            totalNumbers = -1
-
-        if(self.playType == "SFN"):
-            if(totalNumbers != 6 and totalNumbers != -1):
-                raise ValueError(
-                    "You picked {0} numbers. Please pick six numbers for your Lotto 649 Ticket".format(totalNumbers))
-            baseTicket = LottoSixFortyNine()
-
-        elif(self.playType == "LTR"):
-            if(totalNumbers != 6 and totalNumbers != -1):
-                raise ValueError(
-                    "You picked {0} numbers. Please pick six numbers for your Lottario Ticket".format(totalNumbers))
-            baseTicket = Lottario()
-
-        elif(self.playType == "LMX"):
-            if(totalNumbers != 7 and totalNumbers != -1):
-                raise ValueError(
-                    "You picked {0} numbers. Please pick seven numbers for your LottoMax Ticket".format(totalNumbers))
-            baseTicket = LottoMax()
-
-        if(self.ticketType == "Q"):
-            if(self.encorePlayed):
-                ticket = QuickPick(True, baseTicket)
+    def getTickets(self):
+        tickets = []
+        for amount in range(0, self.ticketAmount):
+            if(self.pickedNumbers):
+                totalNumbers = len(self.pickedNumbers)
             else:
-                ticket = QuickPick(False, baseTicket)
-        elif(self.ticketType == "P"):
-            if(self.encorePlayed):
-                ticket = PickYourOwn(self.pickedNumbers, True, baseTicket)
+                totalNumbers = -1
+
+            if(self.playType == "SFN"):
+                if(totalNumbers != 6 and totalNumbers != -1):
+                    raise ValueError(
+                        "You picked {0} numbers. Please pick six numbers for your Lotto 649 Ticket".format(totalNumbers))
+                baseTicket = LottoSixFortyNine()
+
+            elif(self.playType == "LTR"):
+                if(totalNumbers != 6 and totalNumbers != -1):
+                    raise ValueError(
+                        "You picked {0} numbers. Please pick six numbers for your Lottario Ticket".format(totalNumbers))
+                baseTicket = Lottario()
+
+            elif(self.playType == "LMX"):
+                if(totalNumbers != 7 and totalNumbers != -1):
+                    raise ValueError(
+                        "You picked {0} numbers. Please pick seven numbers for your LottoMax Ticket".format(totalNumbers))
+                baseTicket = LottoMax()
+
+            if(self.ticketType == "Q"):
+                if(self.encorePlayed):
+                    ticket = QuickPick(True, baseTicket)
+                else:
+                    ticket = QuickPick(False, baseTicket)
+            elif(self.ticketType == "P"):
+                if(self.encorePlayed):
+                    ticket = PickYourOwn(self.pickedNumbers, True, baseTicket)
+                else:
+                    ticket = PickYourOwn(self.pickedNumbers, False, baseTicket)
+            elif(self.encorePlayed):
+                raise AttributeError(
+                    "The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
             else:
-                ticket = PickYourOwn(self.pickedNumbers, False, baseTicket)
-        elif(self.encorePlayed):
-            raise AttributeError(
-                "The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
-        else:
-            raise AttributeError(
-            "None or invalid arguments given, ticket not generated! Please pick a ticket mode, either Quick Pick or Pick Your Own Ticket. Use the -h switch if required.")
-        return ticket  
+                raise AttributeError(
+                "None or invalid arguments given, ticket not generated! Please pick a ticket mode, either Quick Pick or Pick Your Own Ticket. Use the -h switch if required.")
+            tickets.append(ticket)
+        return tickets
             

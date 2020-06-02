@@ -94,11 +94,19 @@ switchParser.add_argument(
     required=True,
     nargs=1)
 
+# Ticket amount
+switchParser.add_argument(
+    '-tickets',
+    help="Amount of tickets to be generated",
+    required=True,
+    nargs=1)
+
 args = switchParser.parse_args()
 
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Client!")
     socketManager = ClientSocketManager(args.host[0], args.port[0])
+    
     try:
         request = TicketRequest()
         if(args.quick):
@@ -132,11 +140,20 @@ if __name__ == "__main__":
             request.ticketType = "SFN"
         else:
             raise ValueError("No valid ticket type selected, please select either LottoMax, Lottario and Lotto Six Forty Nine")
-
+        
+        ticketAmount = int(args.tickets[0])
+        request.ticketAmount = ticketAmount
         socketManager.sendData(request.serializeRequest())
         ticket = LottoTicket()
-        ticket.deserializeTicket(socketManager.receiveData())
-        ticket.printAndSaveTicket()
+        serializedTickets = socketManager.receiveData()
+        decodedTickets = serializedTickets.decode('utf-8')
+        individualSerializeTickets = decodedTickets.split('|')
+
+        for serializedTicket in individualSerializeTickets:
+            ticket.deserializeTicket(serializedTicket)
+            ticket.printAndSaveTicket()
+
+        socketManager.closeConnection()
     except Exception as ex:
         socketManager.sendErrorAndCloseConnection(ex)
     

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # ==============================================================================
-#   Assignment:  Milestone 0
+#   Assignment:  Milestone 1
 #
 #       Author:  Bruno Alexander Cremonese de Morais
 #     Language:  Python, using argparse, datetime and random libraries
@@ -66,10 +66,15 @@ if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Server!")
     while True:
         socketManager = ServerSocketManager(args.port)
+        request = clientTicketDataParser(socketManager.receiveData())
         try:
-            request = clientTicketDataParser(socketManager.receiveData())
-            ticket = request.getTicket()
-            socketManager.sendData(ticket.serializeTicket())
+            tickets = request.getTickets()
+            serializedTicket = ''
+            for ticket in tickets:
+                serializedTicket += ticket.serializeTicket()
+                if ticket is not tickets[-1]:
+                    serializedTicket += '|'
+            socketManager.sendData(serializedTicket)
             socketManager.closeConnection()
             del socketManager
         except Exception as ex:
