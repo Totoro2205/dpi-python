@@ -79,7 +79,7 @@ class ClientSocketManager(SocketManager):
         for res in socket.getaddrinfo(
                 host,
                 port,
-                socket.AF_UNSPEC,
+                0,
                 socket.SOCK_STREAM):
             af, socktype, proto, canonname, sa = res
             try:
