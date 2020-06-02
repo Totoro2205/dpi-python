@@ -61,6 +61,7 @@ class ServerSocketManager(SocketManager):
     # Close Connection
     def closeConnection(self):
         print("Closing Connection")
+        self.localSocket.close()
         self.connection.close()
 
     # Handles data receiving

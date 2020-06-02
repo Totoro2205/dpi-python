@@ -64,8 +64,8 @@ def clientTicketDataParser(commandData):
 
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Server!")
-    socketManager = ServerSocketManager(args.port)
     while True:
+        socketManager = ServerSocketManager(args.port)
         request = clientTicketDataParser(socketManager.receiveData())
         try:
             tickets = request.getTickets()
