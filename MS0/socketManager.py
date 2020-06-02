@@ -8,7 +8,7 @@ class SocketManager:
 
 
 class ServerSocketManager(SocketManager):
-    host = ''
+    host = '::1'
 
     # Constructor binds the socket and listens for connections
     def __init__(self, port):
@@ -16,10 +16,10 @@ class ServerSocketManager(SocketManager):
         for res in socket.getaddrinfo(
                 self.host,
                 port,
-                socket.AF_UNSPEC,
+                0,
                 socket.SOCK_STREAM,
                 0,
-                int(socket.AI_PASSIVE)):
+                socket.AI_PASSIVE):
             af, socktype, proto, canonname, sa = res
 
             try:
