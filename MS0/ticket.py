@@ -47,10 +47,12 @@ class LottoTicket:
 
         serializedLinesString = ''
         for line in self.ticketLines: 
-            serializedLinesString += ':'
             for number in line:
-                serializedLinesString += '-'
                 serializedLinesString += str(number)
+                if number is not line[-1]:
+                    serializedLinesString += '-'
+            if line is not self.ticketLines[-1]:
+                serializedLinesString += ':'
         serializationBuffer += serializedLinesString
 
         serializationBuffer += '_'
@@ -62,18 +64,25 @@ class LottoTicket:
     
     #Ticket Deserialization
     def deserializeTicket(self, serializationBuffer):
-        self.date = serializationBuffer[0]
-        self.uniqueIdentifier = serializationBuffer[1]
-        self.ticketType = serializationBuffer[2]
-        self.playType = serializationBuffer[3]
-        self.ticketLines = serializationBuffer[4]
-        self.encorePlayed = serializationBuffer[5]
+        bufferAsString = str(serializationBuffer.decode('utf-8'))
+        buffer = bufferAsString.split('_')
+        self.uniqueIdentifier = buffer[0]
+        self.ticketType = buffer[1]
+        self.playType = buffer[2]
+        ticketLineBuffer = buffer[3].split(':')
+        for line in ticketLineBuffer:
+            self.ticketLines.append(line.split('-'))
+        if serializationBuffer[4] == 0:
+            self.encorePlayed = True
+        else:
+            self.encorePlayed = False
 
 
 # Ticket Types
 class LottoMax(LottoTicket):
     # Constructor
     def __init__(self):
+        self.ticketLines = []
         self.ticketType = "LMX"
         self.numbersLength = 7
         self.numberPool = list(range(1, 50))
@@ -82,6 +91,7 @@ class LottoMax(LottoTicket):
 class LottoSixFortyNine(LottoTicket):
     # Constructor
     def __init__(self):
+        self.ticketLines = []
         self.ticketType = "SFN"
         self.numbersLength = 6
         self.numberPool = list(range(1, 49))
@@ -89,6 +99,7 @@ class LottoSixFortyNine(LottoTicket):
 class Lottario(LottoTicket):
     # Constructor
     def __init__(self):
+        self.ticketLines = []
         self.ticketType = "LTR"
         self.numbersLength = 6
         self.numberPool = list(range(1, 45))
@@ -102,14 +113,16 @@ class QuickPick(LottoTicket):
         self.ticketType = lottoTicket.ticketType
         self.numberPool = lottoTicket.numberPool
         self.numbersLength = lottoTicket.numbersLength
+        self.ticketLines = lottoTicket.ticketLines
         self.ticketLines.append(self.randomLineGenerator())
         self.ticketLines.insert(0, self.randomLineGenerator())
         self.encorePlayed = encorePlayed
         self.uniqueIdentifier = self.generateUniqueIdentifier()
+        del lottoTicket
 
     # Ticket Printer
     def printTicket(self):
-        print(self.date)
+        print("--- {0} ---".format(self.uniqueIdentifier))
         print("--- Quick Pick Ticket ---")
         self.printTicketLines()
 
@@ -121,6 +134,8 @@ class PickYourOwn(LottoTicket):
         self.ticketType = lottoTicket.ticketType
         self.numberPool = lottoTicket.numberPool
         self.numbersLength = lottoTicket.numbersLength
+        self.ticketLines = lottoTicket.ticketLines
+        del lottoTicket
         self.ticketLines.append(self.randomLineGenerator())
         self.ticketLines.insert(0, firstLine)
         self.validateInput()
@@ -143,7 +158,7 @@ class PickYourOwn(LottoTicket):
 
     # Ticket Printer
     def printTicket(self):
-        print(self.date)
+        print("--- {0} ---".format(self.uniqueIdentifier))
         print("--- Pick Your Own Ticket ---")
         self.printTicketLines()
 
@@ -189,6 +204,3 @@ class TicketRequest:
             for i in range(1, int(pickedNumbersBuffer[0]) + 1):
                 self.pickedNumbers.append(int(pickedNumbersBuffer[i]))
             
-
-        
-    

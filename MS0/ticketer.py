@@ -63,6 +63,7 @@ def clientTicketDataParser(commandData):
     return request
 
 def requestProcessor(request):
+
     if(request.pickedNumbers):
         totalNumbers = len(request.pickedNumbers)
     else:
@@ -102,15 +103,19 @@ def requestProcessor(request):
     else:
         raise AttributeError(
             "None or invalid arguments given, ticket not generated! Please pick a ticket mode, either Quick Pick or Pick Your Own Ticket. Use the -h switch if required.")
+    del baseTicket
     return ticket
 
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Server!")
-    socketManager = ServerSocketManager(args.port)
-    try:
-        request = clientTicketDataParser(socketManager.receiveData())
-        ticket = requestProcessor(request)
-        socketManager.sendData(ticket.serializeTicket())
-        socketManager.closeConnection()
-    except Exception as ex:
-        socketManager.sendErrorAndCloseConnection(ex)
+    while True:
+        socketManager = ServerSocketManager(args.port)
+        try:
+            request = clientTicketDataParser(socketManager.receiveData())
+            ticket = requestProcessor(request)
+            socketManager.sendData(ticket.serializeTicket())
+            socketManager.closeConnection()
+            del socketManager
+        except Exception as ex:
+            socketManager.sendErrorAndCloseConnection(ex)
+            del socketManager
