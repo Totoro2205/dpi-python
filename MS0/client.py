@@ -100,6 +100,13 @@ switchParser.add_argument(
     required=True,
     nargs=1)
 
+# Unique ID
+switchParser.add_argument(
+    '-uid',
+    help="Unique ID to be generated",
+    required=True,
+    nargs=1)
+
 args = switchParser.parse_args()
 
 if __name__ == "__main__":
@@ -142,6 +149,7 @@ if __name__ == "__main__":
             raise ValueError(
                 "No valid ticket type selected, please select either LottoMax, Lottario and Lotto Six Forty Nine")
 
+        request.uid = args.uid[0]
         ticketAmount = int(args.tickets[0])
         request.ticketAmount = ticketAmount
         socketManager.sendData(request.serializeRequest())

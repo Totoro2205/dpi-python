@@ -24,11 +24,6 @@ class LottoTicket:
                 returnList.append(number)
         return returnList
 
-    # Unique Identifier Generator
-    def generateUniqueIdentifier(self):
-        return self.ticketType + self.playType + "." + \
-            self.date.strftime("%m%d%Y") + "." + str(random.randint(100000, 999999))
-
     def writeTicketToFile(self):
         file = open("lottoTickets.txt", "a")
         file.write("--- {0} --- \n".format(self.uniqueIdentifier))
@@ -151,7 +146,7 @@ class Lottario(LottoTicket):
 class QuickPick(LottoTicket):
 
     # Constructor
-    def __init__(self, encorePlayed, lottoTicket):
+    def __init__(self, encorePlayed, lottoTicket, uid):
         self.playType = "Q"
         self.ticketType = lottoTicket.ticketType
         self.numberPool = lottoTicket.numberPool
@@ -160,14 +155,14 @@ class QuickPick(LottoTicket):
         self.ticketLines.append(self.randomLineGenerator())
         self.ticketLines.insert(0, self.randomLineGenerator())
         self.encorePlayed = encorePlayed
-        self.uniqueIdentifier = self.generateUniqueIdentifier()
+        self.uniqueIdentifier = uid
         del lottoTicket
 
 
 class PickYourOwn(LottoTicket):
 
     # Constructor
-    def __init__(self, firstLine, encorePlayed, lottoTicket):
+    def __init__(self, firstLine, encorePlayed, lottoTicket, uid):
         self.playType = "P"
         self.ticketType = lottoTicket.ticketType
         self.numberPool = lottoTicket.numberPool
@@ -178,7 +173,7 @@ class PickYourOwn(LottoTicket):
         self.ticketLines.insert(0, firstLine)
         self.validateInput()
         self.encorePlayed = encorePlayed
-        self.uniqueIdentifier = self.generateUniqueIdentifier()
+        self.uniqueIdentifier = uid
 
     # Validates User's Input against duplicates or numbers out of the pool
     def validateInput(self):
@@ -205,12 +200,14 @@ class TicketRequest:
             ticketType=None,
             encorePlayed=False,
             pickedNumbers=[],
-            ticketAmount=1):
+            ticketAmount=1,
+            uid=None):
         self.playType = playType
         self.ticketType = ticketType
         self.encorePlayed = encorePlayed
         self.pickedNumbers = []
         self.ticketAmount = ticketAmount
+        self.uid = uid
 
     # Request Serialization
     def serializeRequest(self):
@@ -232,6 +229,8 @@ class TicketRequest:
             serializationBuffer += '0'
         serializationBuffer += '_'
         serializationBuffer += str(self.ticketAmount)
+        serializationBuffer += '_'
+        serializationBuffer += str(self.uid)
         return serializationBuffer
 
     # Request Deserialization
@@ -251,6 +250,7 @@ class TicketRequest:
         else:
             self.encorePlayed = False
         self.ticketAmount = int(buffer[4])
+        self.uid = str(buffer[5])
 
     # Processes request and returns the ticket based on ticket rules
     def getTickets(self):
@@ -281,14 +281,14 @@ class TicketRequest:
 
             if(self.ticketType == "Q"):
                 if(self.encorePlayed):
-                    ticket = QuickPick(True, baseTicket)
+                    ticket = QuickPick(True, baseTicket, self.uid)
                 else:
-                    ticket = QuickPick(False, baseTicket)
+                    ticket = QuickPick(False, baseTicket, self.uid)
             elif(self.ticketType == "P"):
                 if(self.encorePlayed):
-                    ticket = PickYourOwn(self.pickedNumbers, True, baseTicket)
+                    ticket = PickYourOwn(self.pickedNumbers, True, baseTicket, self.uid)
                 else:
-                    ticket = PickYourOwn(self.pickedNumbers, False, baseTicket)
+                    ticket = PickYourOwn(self.pickedNumbers, False, baseTicket, self.uid)
             elif(self.encorePlayed):
                 raise AttributeError(
                     "The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
