@@ -41,6 +41,7 @@ import os
 import signal
 from ticket import LottoTicket, QuickPick, PickYourOwn, LottoSixFortyNine, Lottario, LottoMax, TicketRequest
 from socketManager import ServerSocketManager
+from concurrencyManager import ConcurrencyManager
 
 switchParser = argparse.ArgumentParser(
     description="Welcome to your Python Lotto Ticket Server!")
@@ -73,18 +74,10 @@ def clientRequestHandler(commandData, socketManager):
     request.deserializeRequest(commandData)
     socketManager.sendData(request.getSerializedTickets())
 
-def childSignalManager(signalNumber, frame):
-    while True:
-        try:
-            pid, status = os.waitpid(-1, os.WNOHANG)
-            print("Child {0} terminated with status {1}".format(pid, status))
-        except OSError:
-            return
-        if pid == 0:
-            return
-
 def runDaemon(port, queueSize):
-    signal.signal(signal.SIGCHLD, childSignalManager)
+    concurrencyManager = ConcurrencyManager()
+    signal.signal(signal.SIGCHLD, concurrencyManager.childSignalHandler)
+
     socketManager = ServerSocketManager(port, queueSize)
     while True:
         try:

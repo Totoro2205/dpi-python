@@ -37,11 +37,13 @@
 # ==============================================================================
 
 import argparse
+import os
+import random
 from ticket import LottoTicket, QuickPick, PickYourOwn, LottoSixFortyNine, Lottario, LottoMax, TicketRequest
 from socketManager import ClientSocketManager
 
 switchParser = argparse.ArgumentParser(
-    description="Welcome to your Python Lotto Ticketer!")
+    description="Welcome to your Python Lotto Ticketer! This is a scalable client to stress test the Ticketer daemon!")
 
 # Ticket type selection
 group = switchParser.add_mutually_exclusive_group(required=True)
@@ -107,57 +109,70 @@ switchParser.add_argument(
     required=True,
     nargs=1)
 
+# Connections
+switchParser.add_argument(
+    '-connections',
+    help="Number of connections to be generated",
+    required=True,
+    nargs=1)
+
+# Clients
+switchParser.add_argument(
+    '-clients',
+    help="Number of clients to be generated",
+    required=True,
+    nargs=1)
+
 args = switchParser.parse_args()
 
-if __name__ == "__main__":
-    print("Welcome to your Python Lotto Ticket Client!")
-    socketManager = ClientSocketManager(args.host[0], args.port[0])
+def generateRequest(args):
+    request = TicketRequest()
+    if(args.quick):
+        request.playType = "Q"
+        if(args.encore):
+            request.encorePlayed = True
 
+    elif (args.pick):
+        request.playType = "P"
+        argsAsInt = []
+        try:
+            argsAsInt = list(map(int, args.pick))
+            request.pickedNumbers = argsAsInt
+        except ValueError:
+            raise ValueError(
+                "Invalid value inserted, please insert only numbers")
+        if(args.encore):
+            request.encorePlayed = True
+
+    elif(args.encore):
+        raise AttributeError(
+            "The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
+    else:
+        raise ValueError(
+            "No valid play type selected, please select either a Quick Pick or Pick your own type of ticket")
+
+    if(args.lottomax):
+        request.ticketType = "LMX"
+    elif (args.lottario):
+        request.ticketType = "LTR"
+    elif (args.sixfournine):
+        request.ticketType = "SFN"
+    else:
+        raise ValueError(
+            "No valid ticket type selected, please select either LottoMax, Lottario and Lotto Six Forty Nine")
+
+    request.uid = args.uid[0]
+    ticketAmount = int(args.tickets[0])
+    request.ticketAmount = ticketAmount
+    return request
+
+def runClientLogic(request, socketManager):
     try:
-        request = TicketRequest()
-        if(args.quick):
-            request.playType = "Q"
-            if(args.encore):
-                request.encorePlayed = True
-
-        elif (args.pick):
-            request.playType = "P"
-            argsAsInt = []
-            try:
-                argsAsInt = list(map(int, args.pick))
-                request.pickedNumbers = argsAsInt
-            except ValueError:
-                raise ValueError(
-                    "Invalid value inserted, please insert only numbers")
-            if(args.encore):
-                request.encorePlayed = True
-
-        elif(args.encore):
-            raise AttributeError(
-                "The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
-        else:
-            raise ValueError(
-                "No valid play type selected, please select either a Quick Pick or Pick your own type of ticket")
-
-        if(args.lottomax):
-            request.ticketType = "LMX"
-        elif (args.lottario):
-            request.ticketType = "LTR"
-        elif (args.sixfournine):
-            request.ticketType = "SFN"
-        else:
-            raise ValueError(
-                "No valid ticket type selected, please select either LottoMax, Lottario and Lotto Six Forty Nine")
-
-        request.uid = args.uid[0]
-        ticketAmount = int(args.tickets[0])
-        request.ticketAmount = ticketAmount
         socketManager.sendData(request.serializeRequest())
         ticket = LottoTicket()
         serializedTickets = socketManager.receiveData()
         decodedTickets = serializedTickets.decode('utf-8')
         individualSerializeTickets = decodedTickets.split('|')
-
         for serializedTicket in individualSerializeTickets:
             ticket.deserializeTicket(serializedTicket)
             ticket.printAndSaveTicket()
@@ -165,3 +180,31 @@ if __name__ == "__main__":
         socketManager.closeConnection()
     except Exception as ex:
         socketManager.sendErrorAndCloseConnection(ex)
+
+
+def runStressTest(clientAmount, connectionAmount, host, port, request):
+    socketPool = []
+    for client in range(0, clientAmount):
+        try:
+            pid = os.fork()
+        except OSError:
+            raise OSError("Fork failed, unable to create child process")
+            continue
+
+        data = ''
+        if pid == 0:
+            print("Child spawned with PID: {0}".format(pid))
+            for connection in range(0, connectionAmount):
+                socketManager = ClientSocketManager(host, port)
+                request.uid = "CL" + str(client) + ".CN" + str(connection) + str(random.randint(0, 50))
+                runClientLogic(request, socketManager)
+                socketPool.append(socketManager)
+            os._exit(0)
+
+            
+
+if __name__ == "__main__":
+    print("Welcome to your Python Lotto Ticket Client!")
+    request = generateRequest(args)
+    runStressTest(int(args.clients[0]), int(args.connections[0]), args.host[0], int(args.port[0]), request)
+
