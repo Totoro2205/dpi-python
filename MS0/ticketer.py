@@ -36,6 +36,9 @@
 # ==============================================================================
 
 import argparse
+import errno
+import os
+import signal
 from ticket import LottoTicket, QuickPick, PickYourOwn, LottoSixFortyNine, Lottario, LottoMax, TicketRequest
 from socketManager import ServerSocketManager
 
@@ -51,27 +54,49 @@ switchParser.add_argument(
     type=int,
     nargs=1)
 
+# Port selector
+switchParser.add_argument(
+    '-queue',
+    help="Pool queue size",
+    required=False,
+    default=2,
+    type=int,
+    nargs=1)
+
 args = switchParser.parse_args()
 
 
-def clientTicketDataParser(commandData):
+def clientRequestHandler(commandData, socketManager):
     if not commandData:
         raise ValueError("Empty Command Received By The Client!")
     request = TicketRequest()
     request.deserializeRequest(commandData)
-    return request
+    socketManager.sendData(request.getSerializedTickets())
+
+def childSignalManager(signalNumber, frame):
+    while True:
+        try:
+            pid, status = os.waitpid(-1, os.WNOHANG)
+            print("Child {0} terminated with status {1}".format(pid, status))
+        except OSError:
+            return
+        if pid == 0:
+            return
+
+def runDaemon(port, queueSize):
+    signal.signal(signal.SIGCHLD, childSignalManager)
+    socketManager = ServerSocketManager(port, queueSize)
+    while True:
+        try:
+            socketManager.acceptConnections()
+            socketManager.startDaemon(clientRequestHandler)
+        except IOError as err:
+            code, msg = err.args
+            if code == errno.EINTR:
+                continue
+            else:
+                raise
 
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Server!")
-    socketManager = ServerSocketManager(args.port)
-    while True:
-        socketManager.acceptConnections()
-        try:
-            socketManager.startDaemon()
-            clientData = socketManager.receiveData()
-            request = clientTicketDataParser(clientData)
-            socketManager.sendData(request.getTickets())
-            socketManager.stopChildProcess()
-        except OSError as err:
-            print(err)
-        
+    runDaemon(args.port, args.queue)

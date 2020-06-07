@@ -4,7 +4,7 @@ import signal
 import os
 
 class SocketManager:
-    localSocket: socket
+    listenerSocket: socket
     connection: socket
 
 
@@ -12,7 +12,7 @@ class ServerSocketManager(SocketManager):
     host = '::1'
 
     # Constructor binds the socket and listens for connections
-    def __init__(self, port):
+    def __init__(self, port, queueSize):
 
         for response in socket.getaddrinfo(
                 self.host,
@@ -21,52 +21,53 @@ class ServerSocketManager(SocketManager):
                 socket.SOCK_STREAM,
                 0,
                 socket.AI_PASSIVE):
-            socktype, serverAddress = response
+            addressFamily, socktype, proto, canonname, sa = response
 
             try:
-                self.localSocket = socket.socket(socket.AF_INET, socktype, 0)
+                self.listenerSocket = socket.socket(addressFamily, socktype, proto)
             except socket.error as msg:
-                self.localSocket = None
+                self.listenerSocket = None
                 print(msg)
                 continue
             try:
-                self.localSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                self.localSocket.bind(serverAddress)
-                self.localSocket.listen(1)
+                self.listenerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                self.listenerSocket.bind(sa)
+                self.listenerSocket.listen(queueSize)
                 print('Listening for Connections on Port: {0}'.format(port))
             except socket.error as msg:
-                self.localSocket.close()
-                self.localSocket = None
+                self.listenerSocket.close()
+                self.listenerSocket = None
                 print(msg)
                 continue
             break
-        if self.localSocket is None:
+        if self.listenerSocket is None:
             print('Could not open socket')
             sys.exit(1)
 
     def acceptConnections(self):
-        connection, address = self.localSocket.accept()
+        connection, address = self.listenerSocket.accept()
         print('Received connetion from: {0}'.format(address))
         self.connection = connection
         self.addr = address
 
     # Sends data to client, if failed it sends an error message to STDOUT
     def sendData(self, data):
-        try:
-            self.connection.sendall(data)
-        except Exception as ex:
-            self.sendErrorAndCloseConnection(ex)
+        #try:
+        self.connection.sendall(data.encode('utf-8'))
+        #except Exception as ex:
+            #self.sendErrorAndCloseConnection(ex)
         return 0
 
     # Sends error data and closes the connection
     def sendErrorAndCloseConnection(self, error):
         print("ERROR: {0}, Connection Closed".format(error))
+        self.listenerSocket.sendall("ERROR: {0}, Connection Closed".format(error).encode('utf-8'))
         self.closeConnection()
 
     # Close Connection
     def closeConnection(self):
         print("Closing Connection")
-        self.localSocket.close()
+        self.listenerSocket.close()
         self.connection.close()
 
     # Handles data receiving
@@ -74,31 +75,22 @@ class ServerSocketManager(SocketManager):
         data = self.connection.recv(2048)
         if not data:
             raise Exception("No data received")
-        #print("Data Received: {0}".format(data))
+        print("Data Received: {0}".format(data))
         return data
 
-    # Child Process Signal Manager
-    def signalManager(self):
-        pid, status = os.wait()
-        print("Child {0} terminated with status {1}".format(pid, status))
-
-    # Child Process Manager
-    def childManager(self):
-        signal.signal(signal.SIGCHLD, self.signalManager)
-
     # Daemon Manager
-    def startDaemon(self):
+    def startDaemon(self, daemonHandler):
         try:
             pid = os.fork()
         except OSError:
             raise OSError("Fork failed, unable to create child process")
-        
+        data = ''
         if pid == 0:
-            self.localSocket.close()
             data = self.receiveData()
+            daemonHandler(data, self)
             self.stopChildProcess()
         else:
-            self.localSocket.close()
+            self.connection.close()
 
     def stopChildProcess(self):
         self.connection.close()
@@ -114,29 +106,29 @@ class ClientSocketManager(SocketManager):
                 port,
                 0,
                 socket.SOCK_STREAM):
-            af, socktype, serverAddress = response
+            af, socktype, proto, canonname, serverAddress = response
             try:
-                self.localSocket = socket.socket(af, socktype)
+                self.listenerSocket = socket.socket(af, socktype)
             except socket.error as msg:
-                self.localSocket = None
+                self.listenerSocket = None
                 print(msg)
                 continue
             try:
-                self.localSocket.connect(serverAddress)
+                self.listenerSocket.connect(serverAddress)
             except socket.error as msg:
-                self.localSocket.close()
-                self.localSockets = None
+                self.listenerSocket.close()
+                self.listenerSockets = None
                 print(msg)
                 continue
             break
-        if self.localSocket is None:
+        if self.listenerSocket is None:
             print('Could not open socket')
             sys.exit(1)
 
     # Sends data to server, if failed it sends an error message to STDOUT
     def sendData(self, data):
         try:
-            self.localSocket.sendall(data.encode('utf-8'))
+            self.listenerSocket.sendall(data.encode('utf-8'))
         except Exception as ex:
             self.sendErrorAndCloseConnection(ex)
         return 0
@@ -148,11 +140,11 @@ class ClientSocketManager(SocketManager):
 
     # Close Connection
     def closeConnection(self):
-        self.localSocket.close()
+        self.listenerSocket.close()
 
     # Handles data receiving
     def receiveData(self):
-        data = self.localSocket.recv(2048)
+        data = self.listenerSocket.recv(2048)
         if not data:
             raise Exception("No data received")
         return data

@@ -253,7 +253,7 @@ class TicketRequest:
         self.uid = str(buffer[5])
 
     # Processes request and returns the ticket based on ticket rules
-    def getTickets(self):
+    def getSerializedTickets(self):
         tickets = []
         for amount in range(0, self.ticketAmount):
             if(self.pickedNumbers):
@@ -296,4 +296,11 @@ class TicketRequest:
                 raise AttributeError(
                     "None or invalid arguments given, ticket not generated! Please pick a ticket mode, either Quick Pick or Pick Your Own Ticket. Use the -h switch if required.")
             tickets.append(ticket)
-        return tickets
+        
+        serializedTickets = ''
+        for ticket in tickets:
+            serializedTickets += ticket.serializeTicket()
+            if ticket is not tickets[-1]:
+                serializedTickets += '|'
+
+        return serializedTickets
