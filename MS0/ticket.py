@@ -286,9 +286,11 @@ class TicketRequest:
                     ticket = QuickPick(False, baseTicket, self.uid)
             elif(self.ticketType == "P"):
                 if(self.encorePlayed):
-                    ticket = PickYourOwn(self.pickedNumbers, True, baseTicket, self.uid)
+                    ticket = PickYourOwn(
+                        self.pickedNumbers, True, baseTicket, self.uid)
                 else:
-                    ticket = PickYourOwn(self.pickedNumbers, False, baseTicket, self.uid)
+                    ticket = PickYourOwn(
+                        self.pickedNumbers, False, baseTicket, self.uid)
             elif(self.encorePlayed):
                 raise AttributeError(
                     "The encore argument must be used with a Quick Pick or a Pick Your Own ticket")
@@ -296,7 +298,7 @@ class TicketRequest:
                 raise AttributeError(
                     "None or invalid arguments given, ticket not generated! Please pick a ticket mode, either Quick Pick or Pick Your Own Ticket. Use the -h switch if required.")
             tickets.append(ticket)
-        
+
         serializedTickets = ''
         for ticket in tickets:
             serializedTickets += ticket.serializeTicket()

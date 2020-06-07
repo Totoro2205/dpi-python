@@ -126,6 +126,7 @@ switchParser.add_argument(
 
 args = switchParser.parse_args()
 
+
 def generateRequest(args):
     request = TicketRequest()
     if(args.quick):
@@ -167,6 +168,7 @@ def generateRequest(args):
     request.ticketAmount = ticketAmount
     return request
 
+
 def runClientLogic(request, socketManager):
     try:
         socketManager.sendData(request.serializeRequest())
@@ -197,16 +199,19 @@ def runStressTest(clientAmount, connectionAmount, host, port, request):
             print("Child spawned with PID: {0}".format(pid))
             for connection in range(0, connectionAmount):
                 socketManager = ClientSocketManager(host, port)
-                request.uid = "CL" + str(client) + ".CN" + str(connection) + str(random.randint(0, 50))
+                request.uid = "CL" + \
+                    str(client) + ".CN" + str(connection) + str(random.randint(0, 50))
                 runClientLogic(request, socketManager)
                 socketPool.append(socketManager)
             os._exit(0)
 
-            
 
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Client!")
     concurrencyManager = ConcurrencyManager()
     request = generateRequest(args)
-    runStressTest(int(args.clients[0]), int(args.connections[0]), args.host[0], int(args.port[0]), request)
-
+    runStressTest(int(args.clients[0]),
+                  int(args.connections[0]),
+                  args.host[0],
+                  int(args.port[0]),
+                  request)

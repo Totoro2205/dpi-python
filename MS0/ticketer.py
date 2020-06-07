@@ -74,6 +74,7 @@ def clientRequestHandler(commandData, socketManager):
     request.deserializeRequest(commandData)
     socketManager.sendData(request.getSerializedTickets())
 
+
 def runDaemon(port, queueSize):
     concurrencyManager = ConcurrencyManager()
     socketManager = ServerSocketManager(port, queueSize)
@@ -87,6 +88,7 @@ def runDaemon(port, queueSize):
                 continue
             else:
                 raise
+
 
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Server!")

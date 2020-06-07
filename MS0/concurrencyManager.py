@@ -1,6 +1,7 @@
 import os
 import signal
 
+
 class ConcurrencyManager():
 
     def __init__(self):
@@ -10,7 +11,9 @@ class ConcurrencyManager():
         while True:
             try:
                 pid, status = os.waitpid(-1, os.WNOHANG)
-                print("Child {0} terminated with status {1}".format(pid, status))
+                print(
+                    "Child {0} terminated with status {1}".format(
+                        pid, status))
             except OSError:
                 return
             if pid == 0:

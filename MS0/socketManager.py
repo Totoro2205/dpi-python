@@ -3,6 +3,7 @@ import sys
 import signal
 import os
 
+
 class SocketManager:
     listenerSocket: socket
     connection: socket
@@ -24,13 +25,15 @@ class ServerSocketManager(SocketManager):
             addressFamily, socktype, proto, canonname, sa = response
 
             try:
-                self.listenerSocket = socket.socket(addressFamily, socktype, proto)
+                self.listenerSocket = socket.socket(
+                    addressFamily, socktype, proto)
             except socket.error as msg:
                 self.listenerSocket = None
                 print(msg)
                 continue
             try:
-                self.listenerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                self.listenerSocket.setsockopt(
+                    socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 self.listenerSocket.bind(sa)
                 self.listenerSocket.listen(queueSize)
                 print('Listening for Connections on Port: {0}'.format(port))
@@ -52,16 +55,17 @@ class ServerSocketManager(SocketManager):
 
     # Sends data to client, if failed it sends an error message to STDOUT
     def sendData(self, data):
-        #try:
+        # try:
         self.connection.sendall(data.encode('utf-8'))
-        #except Exception as ex:
-            #self.sendErrorAndCloseConnection(ex)
+        # except Exception as ex:
+        # self.sendErrorAndCloseConnection(ex)
         return 0
 
     # Sends error data and closes the connection
     def sendErrorAndCloseConnection(self, error):
         print("ERROR: {0}, Connection Closed".format(error))
-        self.listenerSocket.sendall("ERROR: {0}, Connection Closed".format(error).encode('utf-8'))
+        self.listenerSocket.sendall(
+            "ERROR: {0}, Connection Closed".format(error).encode('utf-8'))
         self.closeConnection()
 
     # Close Connection
