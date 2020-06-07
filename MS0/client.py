@@ -39,6 +39,7 @@
 import argparse
 import os
 import random
+from concurrencyManager import ConcurrencyManager
 from ticket import LottoTicket, QuickPick, PickYourOwn, LottoSixFortyNine, Lottario, LottoMax, TicketRequest
 from socketManager import ClientSocketManager
 
@@ -205,6 +206,7 @@ def runStressTest(clientAmount, connectionAmount, host, port, request):
 
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Client!")
+    concurrencyManager = ConcurrencyManager()
     request = generateRequest(args)
     runStressTest(int(args.clients[0]), int(args.connections[0]), args.host[0], int(args.port[0]), request)
 

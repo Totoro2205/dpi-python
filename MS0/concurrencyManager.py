@@ -1,16 +1,17 @@
 import os
+import signal
 
 class ConcurrencyManager():
 
     def __init__(self):
-        self.pid = 0
+        signal.signal(signal.SIGCHLD, self.childSignalHandler)
 
     def childSignalHandler(self, signalNumber, frame):
         while True:
             try:
-                self.pid, status = os.waitpid(-1, os.WNOHANG)
-                print("Child {0} terminated with status {1}".format(self.pid, status))
+                pid, status = os.waitpid(-1, os.WNOHANG)
+                print("Child {0} terminated with status {1}".format(pid, status))
             except OSError:
                 return
-            if self.pid == 0:
+            if pid == 0:
                 return

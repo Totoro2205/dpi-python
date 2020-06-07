@@ -76,8 +76,6 @@ def clientRequestHandler(commandData, socketManager):
 
 def runDaemon(port, queueSize):
     concurrencyManager = ConcurrencyManager()
-    signal.signal(signal.SIGCHLD, concurrencyManager.childSignalHandler)
-
     socketManager = ServerSocketManager(port, queueSize)
     while True:
         try:
