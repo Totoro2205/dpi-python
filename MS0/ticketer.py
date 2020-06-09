@@ -55,7 +55,7 @@ switchParser.add_argument(
     type=int,
     nargs=1)
 
-# Port selector
+# Pool queue size
 switchParser.add_argument(
     '-queue',
     help="Pool queue size",
@@ -92,4 +92,4 @@ def runDaemon(port, queueSize):
 
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Server!")
-    runDaemon(args.port, args.queue)
+    runDaemon(args.port[0], args.queue[0])
