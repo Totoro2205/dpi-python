@@ -90,14 +90,14 @@ def runDaemon(port, queueSize):
 
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Server!")
-    if type(args.queue) is list:
+    if isinstance(args.queue, list):
         queueAmount = int(args.queue[0])
-    else :
+    else:
         queueAmount = args.queue
-        
-    if type(args.port) is list:
+
+    if isinstance(args.port, list):
         port = int(args.port[0])
-    else :
+    else:
         port = args.port
 
     runDaemon(port, queueAmount)

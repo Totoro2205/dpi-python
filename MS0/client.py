@@ -218,19 +218,19 @@ if __name__ == "__main__":
     concurrencyManager = ConcurrencyManager()
     request = generateRequest(args)
 
-    if type(args.connections) is list:
+    if isinstance(args.connections, list):
         connections = int(args.connections[0])
-    else :
+    else:
         connections = args.connections
-        
-    if type(args.clients) is list:
+
+    if isinstance(args.clients, list):
         clients = int(args.clients[0])
-    else :
+    else:
         clients = args.clients
 
-    if type(args.port) is list:
+    if isinstance(args.port, list):
         port = int(args.port[0])
-    else :
+    else:
         port = args.port
 
     runStressTest(clients,
