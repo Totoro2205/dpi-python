@@ -92,4 +92,4 @@ def runDaemon(port, queueSize):
 
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Server!")
-    runDaemon(args.port[0], args.queue[0])
+    runDaemon(args.port, args.queue)
