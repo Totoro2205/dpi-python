@@ -119,6 +119,7 @@ switchParser.add_argument(
     help="Number of connections to be generated",
     required=True,
     type=int,
+    default=1,
     nargs=1)
 
 # Clients
@@ -127,6 +128,7 @@ switchParser.add_argument(
     help="Number of clients to be generated",
     required=True,
     type=int,
+    default=1,
     nargs=1)
 
 args = switchParser.parse_args()
@@ -215,8 +217,24 @@ if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Client!")
     concurrencyManager = ConcurrencyManager()
     request = generateRequest(args)
-    runStressTest(int(args.clients[0]),
-                  int(args.connections[0]),
+
+    if type(args.connections) is list:
+        connections = int(args.connections[0])
+    else :
+        connections = args.connections
+        
+    if type(args.clients) is list:
+        clients = int(args.clients[0])
+    else :
+        clients = args.clients
+
+    if type(args.port) is list:
+        port = int(args.port[0])
+    else :
+        port = args.port
+
+    runStressTest(clients,
+                  connections,
                   args.host[0],
-                  int(args.port[0]),
+                  port,
                   request)
