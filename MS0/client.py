@@ -119,6 +119,7 @@ switchParser.add_argument(
     help="Number of connections to be generated",
     required=True,
     default=1,
+    type=int,
     nargs=1)
 
 # Clients
@@ -127,6 +128,7 @@ switchParser.add_argument(
     help="Number of clients to be generated",
     required=True,
     default=1,
+    type=int,
     nargs=1)
 
 args = switchParser.parse_args()
