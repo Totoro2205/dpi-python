@@ -52,7 +52,6 @@ switchParser.add_argument(
     help="Port the server will listen on",
     required=False,
     default=5111,
-    type=int,
     nargs=1)
 
 # Pool queue size
@@ -61,7 +60,6 @@ switchParser.add_argument(
     help="Pool queue size",
     required=False,
     default=2,
-    type=int,
     nargs=1)
 
 args = switchParser.parse_args()
@@ -92,4 +90,14 @@ def runDaemon(port, queueSize):
 
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Server!")
-    runDaemon(int(args.port[0]), int(args.queue[0]))
+    if type(args.queue) is list:
+        queueAmount = int(args.queue[0])
+    else :
+        queueAmount = args.queue
+        
+    if type(args.port) is list:
+        port = int(args.port[0])
+    else :
+        port = args.port
+
+    runDaemon(port, queueAmount)
