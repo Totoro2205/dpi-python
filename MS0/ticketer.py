@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     pidPath = "/tmp/ticketer.pid"
     # We do not have sudo access to add it to /var/run so /tmp is a workaround. /var/run is the default on the Daemon class
-    if(args.stop[0]):
+    if(args.stop):
         daemon = Daemon(pidPath)
         daemon.stopDaemon()
     else:
