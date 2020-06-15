@@ -105,7 +105,7 @@ def runDaemon(port, queueSize):
 
 
 if __name__ == "__main__":
-
+    print(args)
     if isinstance(args.queue, list):
         queueAmount = int(args.queue[0])
     else:
