@@ -63,6 +63,20 @@ switchParser.add_argument(
     default=2,
     nargs=1)
 
+# Stop daemon switch
+switchParser.add_argument(
+    '-stop',
+    help="Stops running the daemon",
+    required=False,
+    action='store_true')
+
+# Start daemon switch
+switchParser.add_argument(
+    '-start',
+    help="Starts the daemon",
+    required=False,
+    action='store_true')
+
 args = switchParser.parse_args()
 
 
@@ -76,7 +90,6 @@ def clientRequestHandler(commandData, socketManager):
 
 def runDaemon(port, queueSize):
     concurrencyManager = ConcurrencyManager()
-    print("Daemon Logic Running")
     socketManager = ServerSocketManager(port, queueSize)
     while True:
         try:
@@ -104,6 +117,9 @@ if __name__ == "__main__":
 
     # We do not have sudo access to add it to /var/run so /tmp is a workaround. /var/run is the default on the Daemon class
     daemon = Daemon('/tmp/ticketer.pid')
-    daemon.startDaemon()
-    runDaemon(port, queueAmount)
+    if(args.stop):
+        daemon.stopDaemon()
+    else:
+        daemon.startDaemon()
+        runDaemon(port, queueAmount)
     
