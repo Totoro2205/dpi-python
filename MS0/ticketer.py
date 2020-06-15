@@ -63,11 +63,20 @@ switchParser.add_argument(
     default=2,
     nargs=1)
 
-# Pool queue size
-switchParser.add_argument(
+group = switchParser.add_mutually_exclusive_group(required=True)
+# Stop daemon switch
+group.add_argument(
     '-stop',
-    help="Stops a running daemon",
-    required=False)
+    help="Stops running the daemon",
+    required=False,
+    action='store_true')
+
+# Start daemon switch
+group.add_argument(
+    '-start',
+    help="Starts running the daemon",
+    required=False,
+    action='store_true')
 
 args = switchParser.parse_args()
 
@@ -111,7 +120,9 @@ if __name__ == "__main__":
     daemon = Daemon('/tmp/ticketer.pid')
     if(args.stop):
         daemon.stopDaemon()
-    else:
+    elif(args.stop):
         daemon.startDaemon()
         runDaemon(port, queueAmount)
+    else:
+        print("Please provide an argument for the Ticketer daemon, either -start or -stop")
     

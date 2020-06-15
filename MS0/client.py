@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # ==============================================================================
-#   Assignment:  Milestone 2
+#   Assignment:  Milestone 3 (No changes from Milestone 2 on the client)
 #
 #       Author:  Bruno Alexander Cremonese de Morais
 #     Language:  Python, using argparse, datetime, os, signal and random libraries
@@ -177,12 +177,11 @@ def generateRequest(args):
     return request
 
 
-def runClientLogic(request, socketManager, loggingManager):
+def runClientLogic(request, socketManager):
     try:
         socketManager.sendData(request.serializeRequest())
         ticket = LottoTicket()
         serializedTickets = socketManager.receiveData()
-        loggingManager.logInfo("Received Data: {0}".format(serializedTickets))
         decodedTickets = serializedTickets.decode('utf-8')
         individualSerializeTickets = decodedTickets.split('|')
         for serializedTicket in individualSerializeTickets:
@@ -199,13 +198,10 @@ def runClientLogic(request, socketManager, loggingManager):
 def runStressTest(clientAmount, connectionAmount, host, port, request):
     socketPool = []
     for client in range(0, clientAmount):
-        childLoggingManager = LoggingManager("CHILD")
         try:
             pid = os.fork()
-            childLoggingManager = LoggingManager("CHILD_{0}".format(pid))
         except OSError:
             message = "Fork failed, unable to create child process"
-            childLoggingManager.logError(message)
             raise OSError(message)
             continue
 
@@ -213,19 +209,17 @@ def runStressTest(clientAmount, connectionAmount, host, port, request):
         if pid == 0:
             message = "Child spawned with PID: {0}".format(pid)
             print(message)
-            childLoggingManager.logInfo(message)
             for connection in range(0, connectionAmount):
                 socketManager = ClientSocketManager(host, port)
                 request.uid = "CL" + \
                     str(client) + ".CN" + str(connection) + str(random.randint(0, 50))
-                runClientLogic(request, socketManager, childLoggingManager)
+                runClientLogic(request, socketManager)
                 socketPool.append(socketManager)
             os._exit(0)
 
 
 if __name__ == "__main__":
     print("Welcome to your Python Lotto Ticket Client!")
-    parentLoggingManager = LoggingManager("PARENT")
     concurrencyManager = ConcurrencyManager()
     request = generateRequest(args)
 
