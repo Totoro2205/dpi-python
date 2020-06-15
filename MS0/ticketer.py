@@ -63,18 +63,20 @@ switchParser.add_argument(
     default=2,
     nargs=1)
 
+group = switchParser.add_mutually_exclusive_group(required=True)
 # Stop daemon switch
-switchParser.add_argument(
+group.add_argument(
     '-stop',
     help="Stops running the daemon",
     required=False,
     action='store_true')
 
 # Start daemon switch
-switchParser.add_argument(
+group.add_argument(
     '-start',
     help="Starts the daemon",
     required=False,
+    default=True,
     action='store_true')
 
 args = switchParser.parse_args()
@@ -121,8 +123,10 @@ if __name__ == "__main__":
     if(args.stop):
         daemon = Daemon(pidPath)
         daemon.stopDaemon()
-    else:
+    elif(args.start):
         daemon = Daemon(pidPath)
         daemon.startDaemon()
         runDaemon(port, queueAmount)
+    else:
+        print("Please select an option: -start or -stop for the Daemon")
     
