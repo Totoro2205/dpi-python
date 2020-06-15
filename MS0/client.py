@@ -45,7 +45,6 @@ import random
 from concurrencyManager import ConcurrencyManager
 from ticket import LottoTicket, QuickPick, PickYourOwn, LottoSixFortyNine, Lottario, LottoMax, TicketRequest
 from socketManager import ClientSocketManager
-from loggingManager import LoggingManager
 
 switchParser = argparse.ArgumentParser(
     description="Welcome to your Python Lotto Ticketer! This is a scalable client to stress test the Ticketer daemon!")
@@ -187,11 +186,8 @@ def runClientLogic(request, socketManager):
         for serializedTicket in individualSerializeTickets:
             ticket.deserializeTicket(serializedTicket)
             ticket.printAndSaveTicket()
-        loggingManager.logInfo("Saved Tickets")
         socketManager.closeConnection()
-        loggingManager.logInfo("Connection Closed")
     except Exception as ex:
-        loggingManager.logError(ex)
         socketManager.sendErrorAndCloseConnection(ex)
 
 
