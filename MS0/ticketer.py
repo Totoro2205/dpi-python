@@ -116,7 +116,6 @@ if __name__ == "__main__":
         port = int(args.port[0])
     else:
         port = args.port
-    print(args)
 
     pidPath = "/tmp/ticketer.pid"
     # We do not have sudo access to add it to /var/run so /tmp is a workaround. /var/run is the default on the Daemon class

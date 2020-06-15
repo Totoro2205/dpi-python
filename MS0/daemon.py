@@ -91,6 +91,7 @@ class Daemon():
             while 1:
                 os.kill(pid, SIGTERM)
             os.remove(self.semaphore)
+            self.logger.logInfo("Stopping Daemon....")
         except OSError as ex:
             err = str(ex)
             if err.find("No such process") > 0:
