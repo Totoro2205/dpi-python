@@ -63,6 +63,12 @@ switchParser.add_argument(
     default=2,
     nargs=1)
 
+# Pool queue size
+switchParser.add_argument(
+    '-stop',
+    help="Stops a running daemon",
+    required=False)
+
 args = switchParser.parse_args()
 
 
@@ -90,6 +96,7 @@ def runDaemon(port, queueSize):
 
 
 if __name__ == "__main__":
+
     if isinstance(args.queue, list):
         queueAmount = int(args.queue[0])
     else:
@@ -102,6 +109,9 @@ if __name__ == "__main__":
 
     # We do not have sudo access to add it to /var/run so /tmp is a workaround. /var/run is the default on the Daemon class
     daemon = Daemon('/tmp/ticketer.pid')
-    daemon.startDaemon()
-    runDaemon(port, queueAmount)
+    if(args.stop):
+        daemon.stopDaemon()
+    else:
+        daemon.startDaemon()
+        runDaemon(port, queueAmount)
     
