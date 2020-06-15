@@ -18,7 +18,7 @@ class Daemon():
 
     # Writes semaphore file to the directory
     def writeSemaphore(self):
-        atexit.register(self.deleteSemaphore())
+        atexit.register(self.deleteSemaphore)
         pid = str(os.getpid())
 
         file = open(self.semaphore,'w')
