@@ -55,6 +55,7 @@ class Daemon():
             sys.exit(1)
 
         self.writeSemaphore()
+        self.logger.logInfo("Daemonized, process starting...")
 
     # Starts up the daemon
     def startDaemon(self):
