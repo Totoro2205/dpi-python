@@ -8,11 +8,9 @@ class Daemon():
 
     # Writed to the default location /var/run
     def __init__(self, semaphore="/var/run/ticketer.pid"):
-        limbo = "/dev/null"
-        limboFile = open(limbo, 'w')
-        sys.stdin = limboFile
-        sys.stdout = limboFile
-        sys.stderr = limboFile
+        sys.stdin = open(os.devnull, 'w')
+        sys.stdout = open(os.devnull, 'w')
+        sys.stderr = open(os.devnull, 'w')
         self.semaphore = semaphore
         self.logger = LoggingManager("DAEMON")
 
