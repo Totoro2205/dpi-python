@@ -42,6 +42,7 @@ import signal
 from ticket import LottoTicket, QuickPick, PickYourOwn, LottoSixFortyNine, Lottario, LottoMax, TicketRequest
 from socketManager import ServerSocketManager
 from concurrencyManager import ConcurrencyManager
+from daemon import Daemon
 
 switchParser = argparse.ArgumentParser(
     description="Welcome to your Python Lotto Ticket Server!")
@@ -89,7 +90,6 @@ def runDaemon(port, queueSize):
 
 
 if __name__ == "__main__":
-    print("Welcome to your Python Lotto Ticket Server!")
     if isinstance(args.queue, list):
         queueAmount = int(args.queue[0])
     else:
@@ -100,4 +100,8 @@ if __name__ == "__main__":
     else:
         port = args.port
 
+    # We do not have sudo access to add it to /var/run so /tmp is a workaround. /var/run is the default on the Daemon class
+    daemon = Daemon('/tmp/ticketer.pid')
+    daemon.startDaemon()
     runDaemon(port, queueAmount)
+    
