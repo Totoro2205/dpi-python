@@ -104,7 +104,6 @@ if __name__ == "__main__":
 
     # We do not have sudo access to add it to /var/run so /tmp is a workaround. /var/run is the default on the Daemon class
     daemon = Daemon('/tmp/ticketer.pid')
-    daemon.stopDaemon()
     daemon.startDaemon()
     runDaemon(port, queueAmount)
     
