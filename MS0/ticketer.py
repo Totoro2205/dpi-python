@@ -63,21 +63,6 @@ switchParser.add_argument(
     default=2,
     nargs=1)
 
-group = switchParser.add_mutually_exclusive_group(required=True)
-# Stop daemon switch
-group.add_argument(
-    '-stop',
-    help="Stops running the daemon",
-    required=False,
-    action='store_true')
-
-# Start daemon switch
-group.add_argument(
-    '-start',
-    help="Starts running the daemon",
-    required=False,
-    action='store_true')
-
 args = switchParser.parse_args()
 
 
@@ -118,11 +103,6 @@ if __name__ == "__main__":
 
     # We do not have sudo access to add it to /var/run so /tmp is a workaround. /var/run is the default on the Daemon class
     daemon = Daemon('/tmp/ticketer.pid')
-    if(args.stop):
-        daemon.stopDaemon()
-    elif(args.stop):
-        daemon.startDaemon()
-        runDaemon(port, queueAmount)
-    else:
-        print("Please provide an argument for the Ticketer daemon, either -start or -stop")
+    daemon.startDaemon()
+    runDaemon(port, queueAmount)
     
