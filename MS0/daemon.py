@@ -10,9 +10,9 @@ class Daemon():
     def __init__(self, semaphore="/var/run/ticketer.pid"):
         limbo = "/dev/null"
         limboFile = open(limbo, 'w')
-        #sys.stdin = limboFile
-        #sys.stdout = limboFile
-        #sys.stderr = limboFile
+        sys.stdin = limboFile
+        sys.stdout = limboFile
+        sys.stderr = limboFile
         self.semaphore = semaphore
         self.logger = LoggingManager("DAEMON")
 
