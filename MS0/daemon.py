@@ -38,12 +38,9 @@ class Daemon():
             self.logger.logError("Fork 1 {0} {1}".format(self.forkFailedMessage, ex))
             sys.exit(1)
 
-        uid = os.getuid()
         os.chdir("/")
-        os.setuid(uid)
-        gid = os.getgid() 
-        os.setgid(gid)
         os.setsid()
+        os.umask(0) 
 
         try:
             pid = os.fork()
